@@ -1,10 +1,14 @@
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('TkAgg')         # pycharm bug
+import matplotlib.pyplot as plt
+
 import pandapower as ppe
 import pandapipes as ppth
 
-# Create grid environment
-def create_env(PV_profile, Wind_profile, load_profile, dis_charge, load_state = None):
+# Create electric grid environment
+def create_electric_env(PV_profile, Wind_profile, load_profile, dis_charge, load_state = None):
     # Create electric net
     net = ppe.create_empty_network()
 
@@ -75,23 +79,87 @@ def create_env(PV_profile, Wind_profile, load_profile, dis_charge, load_state = 
 
     return net, ids
 
+# Create thermal grid environment
+def create_thermal_env(sink_profile):
+    # Create thermal net
+    net = ppth.create_empty_network()
+
+    # Create junctions
+    junctions = ppth.create_junctions(net, 33, pn_bar=5, tfluid_k=320, name=[f'Bus {i}' for i in range(1, 33 + 1)], type='j')
+
+    # Create pipes, using same length and standard type
+    # Main branch
+    ppth.create_pipes(net, [junctions[i] for i in range(0, 17)], [junctions[i] for i in range(1, 18)], length_km=1.0,
+                     std_type="80_GGG", name=[f'line {i}-{i + 1}' for i in range(1, 18)])
+    # Side branch 1
+    ppth.create_pipes(net, [junctions[i] for i in range(18, 21)], [junctions[i] for i in range(19, 22)], length_km=1.0,
+                     std_type="80_GGG", name=[f'line {i}-{i + 1}' for i in range(19, 22)])
+    # Side branch 2
+    ppth.create_pipes(net, [junctions[i] for i in range(22, 24)], [junctions[i] for i in range(23, 25)], length_km=1.0,
+                     std_type="80_GGG", name=[f'line {i}-{i + 1}' for i in range(23, 25)])
+    # Side branch 3
+    ppth.create_pipes(net, [junctions[i] for i in range(25, 32)], [junctions[i] for i in range(26, 33)], length_km=1.0,
+                     std_type="80_GGG", name=[f'line {i}-{i + 1}' for i in range(26, 33)])
+
+    # Connections between branches
+    ppth.create_pipe(net, junctions[1], junctions[18], length_km=1.0, std_type="80_GGG", name='line 2-19')
+    ppth.create_pipe(net, junctions[2], junctions[22], length_km=1.0, std_type="80_GGG", name='line 3-23')
+    ppth.create_pipe(net, junctions[5], junctions[25], length_km=1.0, std_type="80_GGG", name='line 6-26')
+
+    temp_junction = ppth.create_junction(net, pn_bar=5, tfluid_k=320, name='temp_junction', type='j')
+    ppth.create_pipe(net, temp_junction, junctions[24], length_km=1.0, std_type="80_GGG", name='line 6-26')
+    ppth.create_ext_grid(net, temp_junction, p_bar=100, t_k=340)
+    ppth.create_heat_exchanger(net, temp_junction, junctions[24], diameter_m=40e-3, qext_w=2000) # qext_w ?
+
+    # Create sinks
+    sink1  = ppth.create_sink(net, junctions[0],  sink_profile[0],  a_mvar=0, name='sink 1',  in_service=True)
+    sink2  = ppth.create_sink(net, junctions[3],  sink_profile[1],  a_mvar=0, name='sink 2',  in_service=True)
+    sink3  = ppth.create_sink(net, junctions[4],  sink_profile[2],  a_mvar=0, name='sink 3',  in_service=True)
+    sink4  = ppth.create_sink(net, junctions[6],  sink_profile[3],  a_mvar=0, name='sink 4',  in_service=True)
+    sink5  = ppth.create_sink(net, junctions[8],  sink_profile[4],  a_mvar=0, name='sink 5',  in_service=True)
+    sink6  = ppth.create_sink(net, junctions[9],  sink_profile[5],  a_mvar=0, name='sink 6',  in_service=True)
+    sink7  = ppth.create_sink(net, junctions[10], sink_profile[6],  a_mvar=0, name='sink 7',  in_service=True)
+    sink8  = ppth.create_sink(net, junctions[11], sink_profile[7],  a_mvar=0, name='sink 8',  in_service=True)
+    sink9  = ppth.create_sink(net, junctions[13], sink_profile[8],  a_mvar=0, name='sink 9',  in_service=True)
+    sink10 = ppth.create_sink(net, junctions[14], sink_profile[9],  a_mvar=0, name='sink 10', in_service=True)
+    sink11 = ppth.create_sink(net, junctions[15], sink_profile[10], a_mvar=0, name='sink 11', in_service=True)
+    sink12 = ppth.create_sink(net, junctions[17], sink_profile[11], a_mvar=0, name='sink 12', in_service=True)
+    sink13 = ppth.create_sink(net, junctions[18], sink_profile[12], a_mvar=0, name='sink 13', in_service=True)
+    sink14 = ppth.create_sink(net, junctions[21], sink_profile[13], a_mvar=0, name='sink 14', in_service=True)
+    sink15 = ppth.create_sink(net, junctions[23], sink_profile[14], a_mvar=0, name='sink 15', in_service=True)
+    sink16 = ppth.create_sink(net, junctions[25], sink_profile[15], a_mvar=0, name='sink 16', in_service=True)
+    sink17 = ppth.create_sink(net, junctions[27], sink_profile[16], a_mvar=0, name='sink 17', in_service=True)
+    sink18 = ppth.create_sink(net, junctions[29], sink_profile[17], a_mvar=0, name='sink 18', in_service=True)
+    sink19 = ppth.create_sink(net, junctions[30], sink_profile[18], a_mvar=0, name='sink 19', in_service=True)
+    sink20 = ppth.create_sink(net, junctions[31], sink_profile[19], a_mvar=0, name='sink 20', in_service=True)
+
+    ids = {
+        'sink1': sink1, 'sink2': sink2, 'sink3': sink3, 'sink4': sink4, 'sink5': sink5, 'sink6': sink6, 'sink7': sink7, 'sink8': sink8,
+        'sink9': sink9, 'sink10': sink10, 'sink11': sink11, 'sink12': sink12, 'sink13': sink13, 'sink14': sink14, 'sink15': sink15,
+        'sink16': sink16, 'sink17': sink17, 'sink18': sink18, 'sink19': sink19, 'sink20': sink20
+    }
+
+    return net, ids
+
+
+
+
 if __name__ == "__main__":
     """
     Functional Test
     """
 
-    simulation_hours = 24
+    simulation_hours = 72
     PV_units = 3300
     Wind_units = 6
     df_PV = pd.read_csv('env/renewable_energy_source/ninja_pv_23.7989_120.8553_ALL.csv', header=3)
     df_Wind = pd.read_csv('env/renewable_energy_source/ninja_wind_24.7373_120.8835_ALL.csv', header=3)
 
-    #ppe.plotting.simple_plot(net, plot_sgens=True, plot_loads=True)
-
+    res_ext_grid_record = []
     for i in range(0, simulation_hours):
         from parameters import *
 
-        print('hour ', i)
+        #print('hour ', i)
 
         PV1_max_p = df_PV.loc[i, 'electricity'] * 0.001 * PV_units
         pv_max_p_list = [PV1_max_p]
@@ -99,6 +167,21 @@ if __name__ == "__main__":
         Wind1_max_p = df_Wind.loc[i, 'electricity'] * 0.001 * Wind_units
         Wind_max_p_list = [Wind1_max_p]
 
-        net, ids = create_env(pv_max_p_list, Wind_max_p_list, load_max_p_list, Bat_c_max_list)
-        ppe.runpp(net, numba=False)
-        print(net.res_ext_grid)
+        electric_net, ids = create_electric_env(pv_max_p_list, Wind_max_p_list, load_max_p_list, Bat_c_max_list)
+        ppe.runpp(electric_net, numba=False)
+        #print(net.res_ext_grid)
+        res_ext_grid_record.append(electric_net.res_ext_grid.p_mw.values[0])
+
+    plt.figure()
+    plt.plot(range(0, simulation_hours), res_ext_grid_record)
+    plt.xlabel('hours (hr)', size=12)
+    plt.ylabel('Electricity (MW)', size=12)
+    plt.legend(['res_ext_grid'], loc='upper right')
+    plt.title('Electricity from external grid')
+
+    ppe.plotting.simple_plot(electric_net, plot_sgens=True, plot_loads=True)
+    ppe.plotting.to_html(electric_net, 'env/electric_net_test.html')
+
+
+    thermal_net, ids = create_thermal_env(sink_max_p_list)
+    ppth.plotting.simple_plot(thermal_net, plot_sinks=True)

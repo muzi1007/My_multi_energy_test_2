@@ -15,7 +15,7 @@ def create_thermal_env(sink_profile, dis_charge, CHP_thermal_input):
     net = ppth.create_empty_network(fluid="air")
 
     # Create junctions
-    junctions = ppth.create_junctions(net, 33, pn_bar=1, tfluid_k=293.15, name=[f'Bus {i}' for i in range(1, 33 + 1)], type='j')
+    junctions = ppth.create_junctions(net, 33, pn_bar=1, tfluid_k=303.15, name=[f'Bus {i}' for i in range(1, 33 + 1)], type='j')
 
     # Create pipes, using same length and standard type
     # Main branch
@@ -44,28 +44,38 @@ def create_thermal_env(sink_profile, dis_charge, CHP_thermal_input):
     ppth.create_source(net, junctions[0], mdot_kg_per_s=CHP_thermal_input, name="CHP")
 
     # Create external grid
-    ppth.create_ext_grid(net, junctions[24], p_bar=10, t_k=293.15, name="Grid Connection")
-    ppth.create_ext_grid(net, junctions[5], p_bar=10, t_k=293.15, name="Heat Pump")
+    ppth.create_ext_grid(net, junctions[24], p_bar=10, t_k=303.15, name="Grid Connection")
+    ppth.create_ext_grid(net, junctions[5], p_bar=10, t_k=303.15, name="Heat Pump")
 
     # Create mass storages
     mass_storage1 = ppth.create_mass_storage(net, junctions[21], dis_charge[0], max_m_stored_kg=th_Bat1_E, name='Thermal Battery')
 
     # Create sinks
     sink1  = ppth.create_sink(net, junctions[0],  sink_profile[0],  name='sink 1',  in_service=True)
-    sink2  = ppth.create_sink(net, junctions[3],  sink_profile[1],  name='sink 2',  in_service=True)
-    sink3  = ppth.create_sink(net, junctions[5],  sink_profile[2],  name='sink 3',  in_service=True)
-    sink4  = ppth.create_sink(net, junctions[6],  sink_profile[3],  name='sink 4',  in_service=True)
-    sink5  = ppth.create_sink(net, junctions[7],  sink_profile[4],  name='sink 5',  in_service=True)
-    sink6  = ppth.create_sink(net, junctions[9],  sink_profile[5],  name='sink 6',  in_service=True)
-    sink7  = ppth.create_sink(net, junctions[10], sink_profile[6],  name='sink 7',  in_service=True)
-    sink8  = ppth.create_sink(net, junctions[12], sink_profile[7],  name='sink 8',  in_service=True)
-    sink9  = ppth.create_sink(net, junctions[13], sink_profile[8],  name='sink 9',  in_service=True)
-    sink10 = ppth.create_sink(net, junctions[15], sink_profile[9],  name='sink 10', in_service=True)
+    sink4  = ppth.create_sink(net, junctions[3],  sink_profile[1],  name='sink 4',  in_service=True)
+    sink7  = ppth.create_sink(net, junctions[6],  sink_profile[3],  name='sink 7',  in_service=True)
+    sink8  = ppth.create_sink(net, junctions[7],  sink_profile[4],  name='sink 8',  in_service=True)
+    sink10 = ppth.create_sink(net, junctions[9],  sink_profile[5],  name='sink 10', in_service=True)
+    sink11 = ppth.create_sink(net, junctions[10], sink_profile[6],  name='sink 11', in_service=True)
+    sink13 = ppth.create_sink(net, junctions[12], sink_profile[7],  name='sink 13', in_service=True)
+    sink14 = ppth.create_sink(net, junctions[13], sink_profile[8],  name='sink 14', in_service=True)
+    sink16 = ppth.create_sink(net, junctions[15], sink_profile[9],  name='sink 16', in_service=True)
+    sink17 = ppth.create_sink(net, junctions[16], sink_profile[9],  name='sink 17', in_service=True)
+    sink20 = ppth.create_sink(net, junctions[19], sink_profile[9],  name='sink 20', in_service=True)
+    sink21 = ppth.create_sink(net, junctions[20], sink_profile[9],  name='sink 21', in_service=True)
+    sink23 = ppth.create_sink(net, junctions[22], sink_profile[9],  name='sink 23', in_service=True)
+    sink24 = ppth.create_sink(net, junctions[23], sink_profile[9],  name='sink 24', in_service=True)
+    sink26 = ppth.create_sink(net, junctions[25], sink_profile[9],  name='sink 26', in_service=True)
+    sink27 = ppth.create_sink(net, junctions[26], sink_profile[9],  name='sink 27', in_service=True)
+    sink29 = ppth.create_sink(net, junctions[28], sink_profile[9],  name='sink 29', in_service=True)
+    sink30 = ppth.create_sink(net, junctions[29], sink_profile[9],  name='sink 30', in_service=True)
+    sink31 = ppth.create_sink(net, junctions[30], sink_profile[9],  name='sink 31', in_service=True)
+    sink32 = ppth.create_sink(net, junctions[31], sink_profile[9],  name='sink 32', in_service=True)
 
     ids = {
         'mass_storage1': mass_storage1,
-        'sink1': sink1, 'sink2': sink2, 'sink3': sink3, 'sink4': sink4, 'sink5': sink5, 'sink6': sink6, 'sink7': sink7, 'sink8': sink8,
-        'sink9': sink9, 'sink10': sink10
+        'sink1': sink1, 'sink4': sink4, 'sink7': sink7, 'sink8': sink8, 'sink10': sink10, 'sink11': sink11, 'sink13': sink13, 'sink14': sink14, 'sink16': sink16, 'sink17': sink17,
+        'sink20': sink20, 'sink21': sink21, 'sink23': sink23, 'sink24': sink24, 'sink26': sink26, 'sink27': sink27, 'sink29': sink29, 'sink30': sink30, 'sink31': sink31, 'sink32': sink32
     }
 
     return net, ids
@@ -74,7 +84,7 @@ if __name__ == "__main__":
     """
     Functional Test
     """
-    thermal_net, ids = create_thermal_env(sink_max_p_list, th_Bat_d_min_list, 3.133203)
+    thermal_net, ids = create_thermal_env(sink_mass_list, th_Bat_d_min_list, 0.002)
     ppth.plotting.simple_plot(thermal_net, plot_sinks=True, plot_sources=True, pump_size=0.5)
 
     ppth.pipeflow(thermal_net)

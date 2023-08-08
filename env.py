@@ -35,17 +35,19 @@ if __name__ == "__main__":
         ppe.runpp(electric_net, numba=False)
         #print(net.res_ext_grid)
         res_ext_grid_record.append(electric_net.res_ext_grid.p_mw.values[0])
-
+    '''
     plt.figure()
     plt.plot(range(0, simulation_hours), res_ext_grid_record)
     plt.xlabel('hours (hr)', size=12)
     plt.ylabel('Electricity (MW)', size=12)
     plt.legend(['res_ext_grid'], loc='upper right')
     plt.title('Electricity from external grid')
-
-    ppe.plotting.simple_plot(electric_net, plot_gens=True, plot_sgens=True, plot_line_switches=True, plot_loads=True)
+    '''
+    #ppe.plotting.simple_plot(electric_net, plot_gens=True, plot_sgens=True, plot_line_switches=True, plot_loads=True)
     #ppe.plotting.to_html(electric_net, 'env/electric_net_test.html')
 
-    CHP_thermal_input = electric_net.res_ext_grid.p_mw[1] * 3
-    thermal_net, ids = create_thermal_env(sink_max_p_list, th_Bat_d_min_list, CHP_thermal_input)
+    CHP_thermal_input = electric_net.res_ext_grid.p_mw[1] * 1000000 * 3 / 1012 / 13 / 60 / 60
+    thermal_net, ids = create_thermal_env(sink_mass_list, th_Bat_d_min_list, CHP_thermal_input)
     ppth.pipeflow(thermal_net)
+
+    print("done!")

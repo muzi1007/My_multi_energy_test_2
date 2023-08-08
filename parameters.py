@@ -49,31 +49,32 @@ load_max_p_list = [load1_max_p, load2_max_p, load3_max_p, load4_max_p, load5_max
                     load10_max_p, load11_max_p, load12_max_p, load13_max_p, load14_max_p, load15_max_p, load16_max_p, load17_max_p,
                     load18_max_p, load19_max_p, load20_max_p]
 
-# sink max power (?)
-sink1_max_p = random.uniform(-0.01, -0.05)
-sink2_max_p = random.uniform(-0.01, -0.05)
-sink3_max_p = random.uniform(-0.01, -0.05)
-sink4_max_p = random.uniform(-0.01, -0.05)
-sink5_max_p = random.uniform(-0.01, -0.05)
-sink6_max_p = random.uniform(-0.01, -0.05)
-sink7_max_p = random.uniform(-0.01, -0.05)
-sink8_max_p = random.uniform(-0.01, -0.05)
-sink9_max_p = random.uniform(-0.01, -0.05)
-sink10_max_p = random.uniform(-0.01, -0.05)
-sink11_max_p = random.uniform(-0.01, -0.05)
-sink12_max_p = random.uniform(-0.01, -0.05)
-sink13_max_p = random.uniform(-0.01, -0.05)
-sink14_max_p = random.uniform(-0.01, -0.05)
-sink15_max_p = random.uniform(-0.01, -0.05)
-sink16_max_p = random.uniform(-0.01, -0.05)
-sink17_max_p = random.uniform(-0.01, -0.05)
-sink18_max_p = random.uniform(-0.01, -0.05)
-sink19_max_p = random.uniform(-0.01, -0.05)
-sink20_max_p = random.uniform(-0.01, -0.05)
+# sink mass (kg/s)
+# W_th = 1012 * \dot{m_q} * (T_s - T_0), Watt (W) = Specific heat of air *  vector of the mass flow rate (kg/s) * Temperature change (C)
+sink1_mass = random.uniform(-0.01, -0.05)
+sink2_mass = random.uniform(-0.01, -0.05)
+sink3_mass = random.uniform(-0.01, -0.05)
+sink4_mass = random.uniform(-0.01, -0.05)
+sink5_mass = random.uniform(-0.01, -0.05)
+sink6_mass = random.uniform(-0.01, -0.05)
+sink7_mass = random.uniform(-0.01, -0.05)
+sink8_mass = random.uniform(-0.01, -0.05)
+sink9_mass = random.uniform(-0.01, -0.05)
+sink10_mass = random.uniform(-0.01, -0.05)
+sink11_mass = random.uniform(-0.01, -0.05)
+sink12_mass = random.uniform(-0.01, -0.05)
+sink13_mass = random.uniform(-0.01, -0.05)
+sink14_mass = random.uniform(-0.01, -0.05)
+sink15_mass = random.uniform(-0.01, -0.05)
+sink16_mass = random.uniform(-0.01, -0.05)
+sink17_mass = random.uniform(-0.01, -0.05)
+sink18_mass = random.uniform(-0.01, -0.05)
+sink19_mass = random.uniform(-0.01, -0.05)
+sink20_mass = random.uniform(-0.01, -0.05)
 
-sink_max_p_list = [sink1_max_p, sink2_max_p, sink3_max_p, sink4_max_p, sink5_max_p, sink6_max_p, sink7_max_p, sink8_max_p, sink9_max_p,
-                    sink10_max_p, sink11_max_p, sink12_max_p, sink13_max_p, sink14_max_p, sink15_max_p, sink16_max_p, sink17_max_p,
-                    sink18_max_p, sink19_max_p, sink20_max_p]
+sink_mass_list = [sink1_mass, sink2_mass, sink3_mass, sink4_mass, sink5_mass, sink6_mass, sink7_mass, sink8_mass, sink9_mass,
+                    sink10_mass, sink11_mass, sink12_mass, sink13_mass, sink14_mass, sink15_mass, sink16_mass, sink17_mass,
+                    sink18_mass, sink19_mass, sink20_mass]
 
 # PV max power (MW)
 PV1_max_p = 1

@@ -50,34 +50,34 @@ def create_electric_env(PV_profile, Wind_profile, load_profile, dis_charge, load
     Wind1 = ppe.create_sgen(net, buses[17], Wind_profile[0], q_mvar=0, name='Wind turbine 1', type='Wind Turbine')
 
     # Create loads
-    load1  = ppe.create_load(net, buses[0],  load_profile[0],  a_mvar=0, name='load 1',  in_service=True)
-    load2  = ppe.create_load(net, buses[3],  load_profile[1],  a_mvar=0, name='load 2',  in_service=True)
-    load3  = ppe.create_load(net, buses[4],  load_profile[2],  a_mvar=0, name='load 3',  in_service=True)
-    load4  = ppe.create_load(net, buses[6],  load_profile[3],  a_mvar=0, name='load 4',  in_service=True)
-    load5  = ppe.create_load(net, buses[8],  load_profile[4],  a_mvar=0, name='load 5',  in_service=True)
-    load6  = ppe.create_load(net, buses[9],  load_profile[5],  a_mvar=0, name='load 6',  in_service=True)
-    load7  = ppe.create_load(net, buses[10], load_profile[6],  a_mvar=0, name='load 7',  in_service=True)
-    load8  = ppe.create_load(net, buses[11], load_profile[7],  a_mvar=0, name='load 8',  in_service=True)
-    load9  = ppe.create_load(net, buses[13], load_profile[8],  a_mvar=0, name='load 9',  in_service=True)
-    load10 = ppe.create_load(net, buses[14], load_profile[9],  a_mvar=0, name='load 10', in_service=True)
-    load11 = ppe.create_load(net, buses[15], load_profile[10], a_mvar=0, name='load 11', in_service=True)
-    load12 = ppe.create_load(net, buses[17], load_profile[11], a_mvar=0, name='load 12', in_service=True)
-    load13 = ppe.create_load(net, buses[18], load_profile[12], a_mvar=0, name='load 13', in_service=True)
-    load14 = ppe.create_load(net, buses[21], load_profile[13], a_mvar=0, name='load 14', in_service=True)
-    load15 = ppe.create_load(net, buses[23], load_profile[14], a_mvar=0, name='load 15', in_service=True)
-    load16 = ppe.create_load(net, buses[25], load_profile[15], a_mvar=0, name='load 16', in_service=True)
-    load17 = ppe.create_load(net, buses[27], load_profile[16], a_mvar=0, name='load 17', in_service=True)
-    load18 = ppe.create_load(net, buses[29], load_profile[17], a_mvar=0, name='load 18', in_service=True)
-    load19 = ppe.create_load(net, buses[30], load_profile[18], a_mvar=0, name='load 19', in_service=True)
-    load20 = ppe.create_load(net, buses[31], load_profile[19], a_mvar=0, name='load 20', in_service=True)
+    load1  =  ppe.create_load(net, buses[0],  load_profile[0],  a_mvar=0, name='load 1',  in_service=True)
+    load4  =  ppe.create_load(net, buses[3],  load_profile[1],  a_mvar=0, name='load 4',  in_service=True)
+    load5  =  ppe.create_load(net, buses[4],  load_profile[2],  a_mvar=0, name='load 5',  in_service=True)
+    load7  =  ppe.create_load(net, buses[6],  load_profile[3],  a_mvar=0, name='load 7',  in_service=True)
+    load9  =  ppe.create_load(net, buses[8],  load_profile[4],  a_mvar=0, name='load 9',  in_service=True)
+    load10 =  ppe.create_load(net, buses[9],  load_profile[5],  a_mvar=0, name='load 10', in_service=True)
+    load11 =  ppe.create_load(net, buses[10], load_profile[6],  a_mvar=0, name='load 11', in_service=True)
+    load12 =  ppe.create_load(net, buses[11], load_profile[7],  a_mvar=0, name='load 12', in_service=True)
+    load14 =  ppe.create_load(net, buses[13], load_profile[8],  a_mvar=0, name='load 14', in_service=True)
+    load15 =  ppe.create_load(net, buses[14], load_profile[9],  a_mvar=0, name='load 15', in_service=True)
+    load16 =  ppe.create_load(net, buses[15], load_profile[10], a_mvar=0, name='load 16', in_service=True)
+    load18 =  ppe.create_load(net, buses[17], load_profile[11], a_mvar=0, name='load 18', in_service=True)
+    load19 =  ppe.create_load(net, buses[18], load_profile[12], a_mvar=0, name='load 19', in_service=True)
+    load23 =  ppe.create_load(net, buses[21], load_profile[13], a_mvar=0, name='load 23', in_service=True)
+    load24 =  ppe.create_load(net, buses[23], load_profile[14], a_mvar=0, name='load 24', in_service=True)
+    load26 =  ppe.create_load(net, buses[25], load_profile[15], a_mvar=0, name='load 26', in_service=True)
+    load28 =  ppe.create_load(net, buses[27], load_profile[16], a_mvar=0, name='load 28', in_service=True)
+    load30 =  ppe.create_load(net, buses[29], load_profile[17], a_mvar=0, name='load 30', in_service=True)
+    load31 =  ppe.create_load(net, buses[30], load_profile[18], a_mvar=0, name='load 31', in_service=True)
+    load32 =  ppe.create_load(net, buses[31], load_profile[19], a_mvar=0, name='load 32', in_service=True)
 
     ids = {
         'pv1': pv1,
         'Wind1': Wind1,
         'battery1': battery1,
-        'load1': load1, 'load2': load2, 'load3': load3, 'load4': load4, 'load5': load5, 'load6': load6, 'load7': load7, 'load8': load8,
-        'load9': load9, 'load10': load10, 'load11': load11, 'load12': load12, 'load13': load13, 'load14': load14, 'load15': load15,
-        'load16': load16, 'load17': load17, 'load18': load18, 'load19': load19, 'load20': load20
+        'load1': load1, 'load4': load4, 'load5': load5, 'load7': load7, 'load9': load9, 'load10': load10, 'load11': load11, 'load12': load12,
+        'load14': load14, 'load15': load15, 'load16': load16, 'load18': load18, 'load19': load19, 'load23': load23, 'load24': load24,
+        'load26': load26, 'load28': load28, 'load30': load30, 'load31': load31, 'load32': load32
     }
 
     return net, ids
@@ -106,6 +106,7 @@ if __name__ == "__main__":
         ppe.runpp(electric_net, numba=False)
         #print(net.res_ext_grid)
         res_ext_grid_record.append(electric_net.res_ext_grid.p_mw.values[0])
+
 
     plt.figure()
     plt.plot(range(0, simulation_hours), res_ext_grid_record)

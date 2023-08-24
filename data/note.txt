@@ -1,0 +1,27 @@
+df_PV：
+https://www.renewables.ninja/
+2019 hourly
+
+df_Wind：
+https://www.renewables.ninja/
+2019 hourly
+
+df_load：
+http://www.energyonline.com/Data/GenericData.aspx?DataId=13&NYISO___Hourly_Actual_Load
+2019 hourly
+
+df_electricity_price：
+http://www.energyonline.com/Data/GenericData.aspx?DataId=12&NYISO___Actual_Energy_Price
+2019 hourly
+有負值
+
+df_gas_price：
+https://www.eia.gov/dnav/ng/ng_pri_sum_dcu_nus_m.htm
+2019 monthly
+
+df_sink：
+New Efficiency: New York Analysis of Residential Heat Pump Potential and Economics
+https://data.openei.org/submissions/3828
+Cornell Hourly Steam Data FY17.xlsx
+Cornell University 1 July 2016 - 30 June 2017 hourly
+

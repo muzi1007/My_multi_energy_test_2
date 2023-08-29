@@ -24,3 +24,7 @@ New Efficiency: New York Analysis of Residential Heat Pump Potential and Economi
 https://data.openei.org/submissions/3828
 Cornell Hourly Steam Data FY17.xlsx
 Cornell University 1 July 2016 - 30 June 2017 hourly
+
+CHP：
+https://2-g.com/en/case-studies/chp-turns-up-the-steam~cs483
+It supplies 1,487 kW of electrical power and 1,484 kW of thermal power, The heat is produced directly on site to produce steam (730 kg/h, 9.5 bar).

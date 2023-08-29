@@ -6,11 +6,15 @@ import matplotlib.pyplot as plt
 
 import pandapower as ppe
 import pandapipes as ppt
+from pandapower.control import ConstControl
+from pandapower.timeseries.data_sources.frame_data import DFData
+import pandapipes.timeseries as ts
+import pandapower.timeseries.output_writer as ow
 
 from parameters import *
 
 # Create thermal grid environment
-def create_thermal_env(sink_profile, dis_charge, CHP_thermal_input, simulation_hours):
+def create_thermal_env(sink_ds, CHP_thermal_input_ds):
     # Create thermal net
     net = ppt.create_empty_network(fluid="air")
 
@@ -41,39 +45,61 @@ def create_thermal_env(sink_profile, dis_charge, CHP_thermal_input, simulation_h
     #ppt.create_circ_pump_const_pressure(net, junctions[5], junctions[4], p_flow_bar=10, plift_bar=2, t_flow_k=293.15)
 
     # Create source
-    ppt.create_source(net, junctions[0], mdot_kg_per_s=CHP_thermal_input, name="CHP")
+    CHP_thermal = ppt.create_source(net, junctions[0], 0.0, name="CHP")
+    ConstControl(net, element='source', variable='mdot_kg_per_s', element_index=CHP_thermal, profile_name='1', data_source=CHP_thermal_input_ds)
 
     # Create external grid
     ppt.create_ext_grid(net, junctions[24], p_bar=14, t_k=303.15, name="Grid Connection")
     ppt.create_ext_grid(net, junctions[5], p_bar=14, t_k=303.15, name="Heat Pump") # 要改source?
 
     # Create mass storages
-    mass_storage1 = ppt.create_mass_storage(net, junctions[21], dis_charge[0], max_m_stored_kg=Th_Bat1_E, name='Thermal Battery')
+    mass_storage1 = ppt.create_mass_storage(net, junctions[21], 0.0, max_m_stored_kg=Th_Bat1_E, name='Thermal Battery')
+
 
     # Create sinks
-    sink1  = ppt.create_sink(net, junctions[0],  sink_profile['sink_m1'][simulation_hours],  name='sink 1',  in_service=True)
-    sink4  = ppt.create_sink(net, junctions[3],  sink_profile['sink_m4'][simulation_hours],  name='sink 4',  in_service=True)
-    sink7  = ppt.create_sink(net, junctions[6],  sink_profile['sink_m7'][simulation_hours],  name='sink 7',  in_service=True)
-    sink8  = ppt.create_sink(net, junctions[7],  sink_profile['sink_m8'][simulation_hours],  name='sink 8',  in_service=True)
-    sink10 = ppt.create_sink(net, junctions[9],  sink_profile['sink_m10'][simulation_hours],  name='sink 10', in_service=True)
-    sink11 = ppt.create_sink(net, junctions[10], sink_profile['sink_m11'][simulation_hours],  name='sink 11', in_service=True)
-    sink13 = ppt.create_sink(net, junctions[12], sink_profile['sink_m13'][simulation_hours],  name='sink 13', in_service=True)
-    sink14 = ppt.create_sink(net, junctions[13], sink_profile['sink_m14'][simulation_hours],  name='sink 14', in_service=True)
-    sink16 = ppt.create_sink(net, junctions[15], sink_profile['sink_m16'][simulation_hours],  name='sink 16', in_service=True)
-    sink17 = ppt.create_sink(net, junctions[16], sink_profile['sink_m17'][simulation_hours],  name='sink 17', in_service=True)
-    sink20 = ppt.create_sink(net, junctions[19], sink_profile['sink_m20'][simulation_hours],  name='sink 20', in_service=True)
-    sink21 = ppt.create_sink(net, junctions[20], sink_profile['sink_m21'][simulation_hours],  name='sink 21', in_service=True)
-    sink23 = ppt.create_sink(net, junctions[22], sink_profile['sink_m23'][simulation_hours],  name='sink 23', in_service=True)
-    sink24 = ppt.create_sink(net, junctions[23], sink_profile['sink_m24'][simulation_hours],  name='sink 24', in_service=True)
-    sink26 = ppt.create_sink(net, junctions[25], sink_profile['sink_m26'][simulation_hours],  name='sink 26', in_service=True)
-    sink27 = ppt.create_sink(net, junctions[26], sink_profile['sink_m27'][simulation_hours],  name='sink 27', in_service=True)
-    sink29 = ppt.create_sink(net, junctions[28], sink_profile['sink_m29'][simulation_hours],  name='sink 29', in_service=True)
-    sink30 = ppt.create_sink(net, junctions[29], sink_profile['sink_m30'][simulation_hours],  name='sink 30', in_service=True)
-    sink31 = ppt.create_sink(net, junctions[30], sink_profile['sink_m31'][simulation_hours],  name='sink 31', in_service=True)
-    sink32 = ppt.create_sink(net, junctions[31], sink_profile['sink_m32'][simulation_hours],  name='sink 32', in_service=True)
+    sink1  = ppt.create_sink(net, junctions[0],  0.0,  name='sink 1',  in_service=True)
+    sink4  = ppt.create_sink(net, junctions[3],  0.0,  name='sink 4',  in_service=True)
+    sink7  = ppt.create_sink(net, junctions[6],  0.0,  name='sink 7',  in_service=True)
+    sink8  = ppt.create_sink(net, junctions[7],  0.0,  name='sink 8',  in_service=True)
+    sink10 = ppt.create_sink(net, junctions[9],  0.0,  name='sink 10', in_service=True)
+    sink11 = ppt.create_sink(net, junctions[10], 0.0,  name='sink 11', in_service=True)
+    sink13 = ppt.create_sink(net, junctions[12], 0.0,  name='sink 13', in_service=True)
+    sink14 = ppt.create_sink(net, junctions[13], 0.0,  name='sink 14', in_service=True)
+    sink16 = ppt.create_sink(net, junctions[15], 0.0,  name='sink 16', in_service=True)
+    sink17 = ppt.create_sink(net, junctions[16], 0.0,  name='sink 17', in_service=True)
+    sink20 = ppt.create_sink(net, junctions[19], 0.0,  name='sink 20', in_service=True)
+    sink21 = ppt.create_sink(net, junctions[20], 0.0,  name='sink 21', in_service=True)
+    sink23 = ppt.create_sink(net, junctions[22], 0.0,  name='sink 23', in_service=True)
+    sink24 = ppt.create_sink(net, junctions[23], 0.0,  name='sink 24', in_service=True)
+    sink26 = ppt.create_sink(net, junctions[25], 0.0,  name='sink 26', in_service=True)
+    sink27 = ppt.create_sink(net, junctions[26], 0.0,  name='sink 27', in_service=True)
+    sink29 = ppt.create_sink(net, junctions[28], 0.0,  name='sink 29', in_service=True)
+    sink30 = ppt.create_sink(net, junctions[29], 0.0,  name='sink 30', in_service=True)
+    sink31 = ppt.create_sink(net, junctions[30], 0.0,  name='sink 31', in_service=True)
+    sink32 = ppt.create_sink(net, junctions[31], 0.0,  name='sink 32', in_service=True)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink1,  profile_name='sink_m1',  data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink4,  profile_name='sink_m4',  data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink7,  profile_name='sink_m7',  data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink8,  profile_name='sink_m8',  data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink10, profile_name='sink_m10', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink11, profile_name='sink_m11', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink13, profile_name='sink_m13', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink14, profile_name='sink_m14', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink16, profile_name='sink_m16', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink17, profile_name='sink_m17', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink20, profile_name='sink_m20', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink21, profile_name='sink_m21', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink23, profile_name='sink_m23', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink24, profile_name='sink_m24', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink26, profile_name='sink_m26', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink27, profile_name='sink_m27', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink29, profile_name='sink_m29', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink30, profile_name='sink_m30', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink31, profile_name='sink_m31', data_source=sink_ds)
+    ConstControl(net, element='sink', variable='mdot_kg_per_s', element_index=sink32, profile_name='sink_m32', data_source=sink_ds)
 
     ids = {
-        'mass_storage1': mass_storage1,
+        'mass_storage1': mass_storage1, 'CHP_thermal': CHP_thermal,
         'sink1': sink1, 'sink4': sink4, 'sink7': sink7, 'sink8': sink8, 'sink10': sink10, 'sink11': sink11, 'sink13': sink13, 'sink14': sink14, 'sink16': sink16, 'sink17': sink17,
         'sink20': sink20, 'sink21': sink21, 'sink23': sink23, 'sink24': sink24, 'sink26': sink26, 'sink27': sink27, 'sink29': sink29, 'sink30': sink30, 'sink31': sink31, 'sink32': sink32
     }
@@ -86,19 +112,16 @@ if __name__ == "__main__":
     """
     simulation_hours = 72
     sink_m_profile = pd.read_csv('./data/profile/sink_m_profile.csv')
+    sink_ds = DFData(sink_m_profile.iloc[0: simulation_hours])
+    CHP_thermal_input = pd.read_csv('./data/3_days_test_without_actions/output_writer/electric_net/res_ext_grid/p_mw.csv')
+    CHP_thermal_input_ds = DFData(CHP_thermal_input.iloc[0: simulation_hours])
+    thermal_net, ids = create_thermal_env(sink_ds, CHP_thermal_input_ds)
+    owr = ow.OutputWriter(thermal_net, output_path="./data/3_days_test_without_actions/output_writer/thermal_net", output_file_type=".csv", csv_separator=',')
+    owr.remove_log_variable('res_bus', 'vm_pu')
+    owr.remove_log_variable('res_line', 'loading_percent')
+    owr.log_variable('res_ext_grid', 'mdot_kg_per_s')
+    owr.log_variable('res_sink', 'mdot_kg_per_s')
+    owr.log_variable('res_source', 'mdot_kg_per_s')
+    ts.run_timeseries(thermal_net, time_steps=simulation_hours, continue_on_divergence=False)
 
-    res_ext_grid_record = []
-    for i in range(0, simulation_hours):
-        #print('hour ', i)
-        thermal_net, ids = create_thermal_env(sink_m_profile, Th_Bat_d_min_list, 0, i) # CHP_thermal_input 未與 electric_net 整合
-        ppt.pipeflow(thermal_net)
-        res_ext_grid_record.append(thermal_net.res_ext_grid.mdot_kg_per_s.values[0])
-
-    plt.figure()
-    plt.plot(range(0, simulation_hours), res_ext_grid_record)
-    plt.xlabel('hours (hr)', size=12)
-    plt.ylabel('Mass (kg/s)', size=12)
-    plt.legend(['res_ext_grid'], loc='upper right')
-    plt.title('Mass from external grid')
-
-    ppt.plotting.simple_plot(thermal_net, plot_sinks=True, plot_sources=True, pump_size=0.5)
+    #ppt.plotting.simple_plot(thermal_net, plot_sinks=True, plot_sources=True, pump_size=0.5)

@@ -37,8 +37,8 @@ def create_electric_env(PV_profile, Wind_profile, load_profile, dis_charge, simu
     ppe.create_line(net, buses[5], buses[25], length_km=1.0, std_type="NAYY 4x50 SE", name='line 6-26')
 
     # Create external grid
-    ppe.create_ext_grid(net, buses[0], vm_pu=1.02, va_degree=50, name='Grid Connection')
-    ppe.create_ext_grid(net, buses[0], vm_pu=1.02, va_degree=50, name='CHP')
+    ppe.create_ext_grid(net, buses[0], name='Grid Connection')
+    ppe.create_ext_grid(net, buses[0], name='CHP') # 要改sgen?
 
     # Create batteries
     battery1 = ppe.create_storage(net, buses[32], dis_charge[0], max_e_mwh=E_Bat1_E, max_p_mw=E_Bat1_c_max, min_p_mw=E_Bat1_d_min, name='Electric Battery')
@@ -50,26 +50,26 @@ def create_electric_env(PV_profile, Wind_profile, load_profile, dis_charge, simu
     wind1 = ppe.create_sgen(net, buses[17], Wind_profile[simulation_hours], q_mvar=0, name='Wind turbine 1', type='Wind Turbine')
 
     # Create loads
-    load1  =  ppe.create_load(net, buses[0],  load_profile['load1'][simulation_hours],  a_mvar=0, name='load 1',  in_service=True)
-    load4  =  ppe.create_load(net, buses[3],  load_profile['load4'][simulation_hours],  a_mvar=0, name='load 4',  in_service=True)
-    load5  =  ppe.create_load(net, buses[4],  load_profile['load5'][simulation_hours],  a_mvar=0, name='load 5',  in_service=True)
-    load7  =  ppe.create_load(net, buses[6],  load_profile['load7'][simulation_hours],  a_mvar=0, name='load 7',  in_service=True)
-    load9  =  ppe.create_load(net, buses[8],  load_profile['load9'][simulation_hours],  a_mvar=0, name='load 9',  in_service=True)
-    load10 =  ppe.create_load(net, buses[9],  load_profile['load10'][simulation_hours],  a_mvar=0, name='load 10', in_service=True)
-    load11 =  ppe.create_load(net, buses[10], load_profile['load11'][simulation_hours],  a_mvar=0, name='load 11', in_service=True)
-    load12 =  ppe.create_load(net, buses[11], load_profile['load12'][simulation_hours],  a_mvar=0, name='load 12', in_service=True)
-    load14 =  ppe.create_load(net, buses[13], load_profile['load14'][simulation_hours],  a_mvar=0, name='load 14', in_service=True)
-    load15 =  ppe.create_load(net, buses[14], load_profile['load15'][simulation_hours],  a_mvar=0, name='load 15', in_service=True)
-    load16 =  ppe.create_load(net, buses[15], load_profile['load16'][simulation_hours], a_mvar=0, name='load 16', in_service=True)
-    load18 =  ppe.create_load(net, buses[17], load_profile['load18'][simulation_hours], a_mvar=0, name='load 18', in_service=True)
-    load19 =  ppe.create_load(net, buses[18], load_profile['load19'][simulation_hours], a_mvar=0, name='load 19', in_service=True)
-    load23 =  ppe.create_load(net, buses[21], load_profile['load23'][simulation_hours], a_mvar=0, name='load 23', in_service=True)
-    load24 =  ppe.create_load(net, buses[23], load_profile['load24'][simulation_hours], a_mvar=0, name='load 24', in_service=True)
-    load26 =  ppe.create_load(net, buses[25], load_profile['load26'][simulation_hours], a_mvar=0, name='load 26', in_service=True)
-    load28 =  ppe.create_load(net, buses[27], load_profile['load28'][simulation_hours], a_mvar=0, name='load 28', in_service=True)
-    load30 =  ppe.create_load(net, buses[29], load_profile['load30'][simulation_hours], a_mvar=0, name='load 30', in_service=True)
-    load31 =  ppe.create_load(net, buses[30], load_profile['load31'][simulation_hours], a_mvar=0, name='load 31', in_service=True)
-    load32 =  ppe.create_load(net, buses[31], load_profile['load32'][simulation_hours], a_mvar=0, name='load 32', in_service=True)
+    load1  =  ppe.create_load(net, buses[0],  load_profile['load1'][simulation_hours],  q_mvar=0, name='load 1',  in_service=True)
+    load4  =  ppe.create_load(net, buses[3],  load_profile['load4'][simulation_hours],  q_mvar=0, name='load 4',  in_service=True)
+    load5  =  ppe.create_load(net, buses[4],  load_profile['load5'][simulation_hours],  q_mvar=0, name='load 5',  in_service=True)
+    load7  =  ppe.create_load(net, buses[6],  load_profile['load7'][simulation_hours],  q_mvar=0, name='load 7',  in_service=True)
+    load9  =  ppe.create_load(net, buses[8],  load_profile['load9'][simulation_hours],  q_mvar=0, name='load 9',  in_service=True)
+    load10 =  ppe.create_load(net, buses[9],  load_profile['load10'][simulation_hours], q_mvar=0, name='load 10', in_service=True)
+    load11 =  ppe.create_load(net, buses[10], load_profile['load11'][simulation_hours], q_mvar=0, name='load 11', in_service=True)
+    load12 =  ppe.create_load(net, buses[11], load_profile['load12'][simulation_hours], q_mvar=0, name='load 12', in_service=True)
+    load14 =  ppe.create_load(net, buses[13], load_profile['load14'][simulation_hours], q_mvar=0, name='load 14', in_service=True)
+    load15 =  ppe.create_load(net, buses[14], load_profile['load15'][simulation_hours], q_mvar=0, name='load 15', in_service=True)
+    load16 =  ppe.create_load(net, buses[15], load_profile['load16'][simulation_hours], q_mvar=0, name='load 16', in_service=True)
+    load18 =  ppe.create_load(net, buses[17], load_profile['load18'][simulation_hours], q_mvar=0, name='load 18', in_service=True)
+    load19 =  ppe.create_load(net, buses[18], load_profile['load19'][simulation_hours], q_mvar=0, name='load 19', in_service=True)
+    load23 =  ppe.create_load(net, buses[21], load_profile['load23'][simulation_hours], q_mvar=0, name='load 23', in_service=True)
+    load24 =  ppe.create_load(net, buses[23], load_profile['load24'][simulation_hours], q_mvar=0, name='load 24', in_service=True)
+    load26 =  ppe.create_load(net, buses[25], load_profile['load26'][simulation_hours], q_mvar=0, name='load 26', in_service=True)
+    load28 =  ppe.create_load(net, buses[27], load_profile['load28'][simulation_hours], q_mvar=0, name='load 28', in_service=True)
+    load30 =  ppe.create_load(net, buses[29], load_profile['load30'][simulation_hours], q_mvar=0, name='load 30', in_service=True)
+    load31 =  ppe.create_load(net, buses[30], load_profile['load31'][simulation_hours], q_mvar=0, name='load 31', in_service=True)
+    load32 =  ppe.create_load(net, buses[31], load_profile['load32'][simulation_hours], q_mvar=0, name='load 32', in_service=True)
 
     ids = {
         'pv1': pv1,

@@ -24,4 +24,3 @@ New Efficiency: New York Analysis of Residential Heat Pump Potential and Economi
 https://data.openei.org/submissions/3828
 Cornell Hourly Steam Data FY17.xlsx
 Cornell University 1 July 2016 - 30 June 2017 hourly
-

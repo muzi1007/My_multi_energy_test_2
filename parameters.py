@@ -26,26 +26,25 @@ load_max_p_list = [load1_max_p, load2_max_p, load3_max_p, load4_max_p, load5_max
                     load10_max_p, load11_max_p, load12_max_p, load13_max_p, load14_max_p, load15_max_p, load16_max_p, load17_max_p,
                     load18_max_p, load19_max_p, load20_max_p]
 
-# sink max mass (MWt)
-# Wt = 1012 * \dot{m_q} * (T_s - T_0), Watt (Wt) = Specific heat of air * vector of the mass flow rate (kg/s) * Temperature change (C)
+# sink max power (MWt)
 sink1_max_p = 1.85
 sink2_max_p = 2.95
 sink3_max_p = 1.45
-sink4_max_p = 1.45
-sink5_max_p = 2.565
-sink6_max_p = 1.125
+sink4_max_p = 2.45
+sink5_max_p = 1.565
+sink6_max_p = 2.125
 sink7_max_p = 1.875
 sink8_max_p = 2.55
 sink9_max_p = 1.125
-sink10_max_p = 1.255
-sink11_max_p = 2.95
-sink12_max_p = 1.25
+sink10_max_p = 2.255
+sink11_max_p = 1.95
+sink12_max_p = 2.25
 sink13_max_p = 1.255
 sink14_max_p = 2.65
 sink15_max_p = 1.95
-sink16_max_p = 1.25
-sink17_max_p = 2.855
-sink18_max_p = 1.75
+sink16_max_p = 2.25
+sink17_max_p = 1.855
+sink18_max_p = 2.75
 sink19_max_p = 1.235
 sink20_max_p = 2.225
 

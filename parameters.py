@@ -28,25 +28,25 @@ load_max_p_list = [load1_max_p, load2_max_p, load3_max_p, load4_max_p, load5_max
 
 # sink max power (MWt)
 sink1_max_p = 1.85
-sink2_max_p = 2.95
+sink2_max_p = 1.95
 sink3_max_p = 1.45
-sink4_max_p = 2.45
+sink4_max_p = 1.45
 sink5_max_p = 1.565
-sink6_max_p = 2.125
+sink6_max_p = 1.125
 sink7_max_p = 1.875
-sink8_max_p = 2.55
+sink8_max_p = 1.55
 sink9_max_p = 1.125
-sink10_max_p = 2.255
+sink10_max_p = 1.255
 sink11_max_p = 1.95
-sink12_max_p = 2.25
+sink12_max_p = 1.25
 sink13_max_p = 1.255
-sink14_max_p = 2.65
+sink14_max_p = 1.65
 sink15_max_p = 1.95
-sink16_max_p = 2.25
+sink16_max_p = 1.25
 sink17_max_p = 1.855
-sink18_max_p = 2.75
+sink18_max_p = 1.75
 sink19_max_p = 1.235
-sink20_max_p = 2.225
+sink20_max_p = 1.225
 
 sink_max_p_list = [sink1_max_p, sink2_max_p, sink3_max_p, sink4_max_p, sink5_max_p, sink6_max_p, sink7_max_p, sink8_max_p, sink9_max_p,
                     sink10_max_p, sink11_max_p, sink12_max_p, sink13_max_p, sink14_max_p, sink15_max_p, sink16_max_p, sink17_max_p,

@@ -46,11 +46,12 @@ def create_thermal_env(sink_ds, CHP_thermal_input_ds):
 
     # Create source
     CHP_thermal = ppt.create_source(net, junctions[0], 0.0, name="CHP")
+    Natural_Gas_Boiler = ppt.create_source(net, junctions[24], 0.0, name="Natural Gas Boiler")
+    Heat_Pump = ppt.create_source(net, junctions[5], 0.0, name="Heat Pump")
     ConstControl(net, element='source', variable='mdot_kg_per_s', element_index=CHP_thermal, profile_name='1', data_source=CHP_thermal_input_ds)
 
     # Create external grid
-    ppt.create_ext_grid(net, junctions[24], p_bar=14, t_k=303.15, name="Grid Connection")
-    ppt.create_ext_grid(net, junctions[5], p_bar=14, t_k=303.15, name="Heat Pump") # 要改source?
+    ppt.create_ext_grid(net, junctions[32], p_bar=14, t_k=303.15, name="Grid Connection")
 
     # Create mass storages
     mass_storage1 = ppt.create_mass_storage(net, junctions[21], 0.0, max_m_stored_kg=Th_Bat1_E, name='Thermal Battery')

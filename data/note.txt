@@ -1,23 +1,28 @@
 df_PV：
 https://www.renewables.ninja/
-2019 hourly
+40.866667, -72.85
+37000kW, 0.816
+2021 hourly
 
 df_Wind：
 https://www.renewables.ninja/
-2019 hourly
+43.785278, -75.575278
+322000kW, Vestas V80 1800
+2021 hourly
 
 df_load：
 http://www.energyonline.com/Data/GenericData.aspx?DataId=13&NYISO___Hourly_Actual_Load
-2019 hourly
+2021 hourly
 
 df_electricity_price：
 http://www.energyonline.com/Data/GenericData.aspx?DataId=12&NYISO___Actual_Energy_Price
-2019 hourly
+2021 hourly
 有負值
 
 df_gas_price：
 https://www.eia.gov/dnav/ng/ng_pri_sum_dcu_nus_m.htm
-2019 monthly
+2021 monthly
+https://www.eia.gov/dnav/ng/hist/n3010us3m.htm
 
 df_sink：
 New Efficiency: New York Analysis of Residential Heat Pump Potential and Economics
@@ -28,3 +33,37 @@ Cornell University 1 July 2016 - 30 June 2017 hourly
 CHP：
 https://2-g.com/en/case-studies/chp-turns-up-the-steam~cs483
 It supplies 1,487 kW of electrical power and 1,484 kW of thermal power, The heat is produced directly on site to produce steam (730 kg/h, 9.5 bar).
+------------------------------------------
+COP：100%
+
+df_heat_price：
+conEdison
+https://cdne-dcxprod-sitecore.azureedge.net/-/media/files/coned/documents/for-commercial-industries/steam/why-steam/tariff-leaves-service-classifications.pdf?rev=d441937d179749dda7102273e43bd839&hash=081ADD923DCE6C56C05E1E66ED198D1F
+For the first 	20 Mlb 		$15.903 / Mlb
+For the next 	30 Mlb 		$50.129 / Mlb
+For the next 	950 Mlb 	$39.126 / Mlb
+For excess over 1,000 Mlb 	$37.652 / Mlb
+
+1 kg = 2.20462262185 lb
+0.4535923699997481 kg = 1 lb
+1Mlb = 453592.3699997481 kg
+
+For the first 	9.071847399994963 Mkg 	$0.000035 	/ 1 kg
+For the next 	13.60777109999244 Mkg 	$0.00011  	/ 1 kg
+For the next 	430.9127514997607 Mkg 	$0.000086258 	/ 453592.3699997481 kg
+For excess over 453.5923699997481 Mkg 	$0.000083 	/ 1 kg
+
+
+Heap Pump：
+https://www.bosch-industrial.com/ocsmedia/optimized/full/o505881v272_DA444en.pdf
+BOSCH, Electric steam boiler ELSB 6
+7500 kg/h steam : 5105kW electricity
+------------------------------------------
+COP：3
+1MWe：3MWth
+
+Natural Gas Boiler：
+https://www.oshima.com.tw/product_d.php?lang=en&tb=1&id=3208
+------------------------------------------
+https://www.kylesconverter.com/energy,-work,-and-heat/cubic-feet-of-natural-gas-to-megawatt-hours
+3412.14 Cubic Feet Of Natural Gas：1MWth

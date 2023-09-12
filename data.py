@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 # Create profile
 
-def reindex_normalization_interpolation(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_sink_p, df_sink_m):
+def reindex_normalization_interpolation(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_Cornell, df_Cornell_transform_map):
     #print(f'maximum value before normalization: {df_PV["electricity"].max()},\n {df_Wind["electricity"].max()},\n {df_Electricity_price.max()},\n {df_load.max()},\n {df_sink.max()}\n')
 
     df_PV = pd.pivot_table(df_PV, values='electricity', index=['local_time'], sort=False)
@@ -14,7 +14,7 @@ def reindex_normalization_interpolation(df_PV, df_Wind, df_Electricity_price, df
     df_Gas_price = df_Gas_price.reindex(index=range(365 * 24), method='ffill')
     df_load = pd.pivot_table(df_load, values='Load', index=['Date'], columns=['Zone'], sort=False)
 
-    pdate = pd.date_range(start='2019-01-01 00:00:00', end='2019-12-31 23:00:00', freq='H')
+    pdate = pd.date_range(start='2021-01-01 00:00:00', end='2021-12-31 23:00:00', freq='H')
 
     df_PV = df_PV.set_index(pd.to_datetime(df_PV.index))
     df_PV = df_PV.reindex(pdate)
@@ -34,22 +34,18 @@ def reindex_normalization_interpolation(df_PV, df_Wind, df_Electricity_price, df
         for j in ['CAPITL', 'CENTRL', 'DUNWOD', 'GENESE', 'HUD VL', 'LONGIL', 'MHK VL', 'MILLWD', 'N.Y.C.']:
             df_load[j][i] = df_load[j][i] * random.uniform(0.8, 1.2)
 
-    df_sink_m['Total\nType A\nBuildings lbs steam'] = df_sink_m['Total\nType A\nBuildings lbs steam'] / df_sink_p['Type A MWth']
-    df_sink_m['Total\nType B\nBuildings lbs steam'] = df_sink_m['Total\nType B\nBuildings lbs steam'] / df_sink_p['Type B MWth']
-    df_sink_m['Total\nType C\nBuildings lbs steam'] = df_sink_m['Total\nType C\nBuildings lbs steam'] / df_sink_p['Type C MWth']
-
     df_Gas_price.index = pdate
-    df_sink_p.index = pdate
-    df_sink_m.index = pdate
+    df_Cornell.index = pdate
+    df_Cornell_transform_map.index = pdate
 
     # scale values
-    for df in [df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_sink_p]:
+    for df in [df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_Cornell]:
         #print(df.max())
         df /= df.max()
 
-    return df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_sink_p, df_sink_m
+    return df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_Cornell, df_Cornell_transform_map
 
-def multiply_by_max(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_sink_p, df_sink_m):
+def multiply_by_max(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_Cornell, df_Cornell_transform_map):
     df_PV['electricity'] =  df_PV['electricity'] * PV1_max_p
     df_Wind['electricity'] = df_Wind['electricity'] * Wind1_max_p
     df_Electricity_price = pd.DataFrame({
@@ -60,17 +56,17 @@ def multiply_by_max(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load,
         'price': df_Gas_price['U.S. Price of Natural Gas Delivered to Residential Consumers (Dollars per Thousand Cubic Feet)'] * C_Gas_price_max
     })
     df_load_1 = pd.DataFrame({
-        'load1': df_load['CAPITL'] * load1_max_p,
-        'load4': df_load['CENTRL'] * load2_max_p,
-        'load5': df_load['DUNWOD'] * load3_max_p,
-        'load7': df_load['GENESE'] * load4_max_p,
-        'load9': df_load['HUD VL'] * load5_max_p,
+        'load1':  df_load['CAPITL'] * load1_max_p,
+        'load4':  df_load['CENTRL'] * load2_max_p,
+        'load5':  df_load['DUNWOD'] * load3_max_p,
+        'load7':  df_load['GENESE'] * load4_max_p,
+        'load9':  df_load['HUD VL'] * load5_max_p,
         'load10': df_load['LONGIL'] * load6_max_p,
         'load11': df_load['MHK VL'] * load7_max_p,
         'load12': df_load['MILLWD'] * load8_max_p,
         'load14': df_load['N.Y.C.'] * load9_max_p,
-        'load15': df_load['NORTH'] * load10_max_p,
-        'load16': df_load['WEST'] * load11_max_p,
+        'load15': df_load['NORTH']  * load10_max_p,
+        'load16': df_load['WEST']   * load11_max_p,
     })
 
     for i in range(len(df_load)):
@@ -92,109 +88,109 @@ def multiply_by_max(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load,
     df_load = pd.merge(df_load_1, df_load_2, left_index=True, right_index=True)
 
     df_sink_p_1 = pd.DataFrame({
-        'sink_p1': df_sink_p['Type A MWth'] * sink1_max_p,
-        'sink_p4': df_sink_p['Type B MWth'] * sink2_max_p,
-        'sink_p7': df_sink_p['Type C MWth'] * sink3_max_p,
+        'sink_p1': df_Cornell['Type A MWth'] * sink1_max_p,
+        'sink_p4': df_Cornell['Type B MWth'] * sink2_max_p,
+        'sink_p7': df_Cornell['Type C MWth'] * sink3_max_p,
     })
 
     df_sink_m_1 = pd.DataFrame({
-        'sink_m1': df_sink_p_1['sink_p1'] * df_sink_m['Total\nType A\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m4': df_sink_p_1['sink_p4'] * df_sink_m['Total\nType B\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m7': df_sink_p_1['sink_p7'] * df_sink_m['Total\nType C\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
+        'sink_m1': df_sink_p_1['sink_p1'] * df_Cornell_transform_map['TypeA_PtoM'] / 60 / 60,
+        'sink_m4': df_sink_p_1['sink_p4'] * df_Cornell_transform_map['TypeB_PtoM'] / 60 / 60,
+        'sink_m7': df_sink_p_1['sink_p7'] * df_Cornell_transform_map['TypeC_PtoM'] / 60 / 60,
     })
 
-    for i in range(len(df_sink_p)):
+    for i in range(len(df_Cornell)):
         for j in ['Type A MWth', 'Type B MWth', 'Type C MWth']:
-            df_sink_p[j][i] = df_sink_p[j][i] * random.uniform(0.8, 1.2)
+            df_Cornell[j][i] = df_Cornell[j][i] * random.uniform(0.8, 1.2)
 
     df_sink_p_2 = pd.DataFrame({
-        'sink_p8': df_sink_p['Type A MWth'] * sink4_max_p,
-        'sink_p10': df_sink_p['Type B MWth'] * sink5_max_p,
-        'sink_p11': df_sink_p['Type C MWth'] * sink6_max_p,
+        'sink_p8':  df_Cornell['Type A MWth'] * sink4_max_p,
+        'sink_p10': df_Cornell['Type B MWth'] * sink5_max_p,
+        'sink_p11': df_Cornell['Type C MWth'] * sink6_max_p,
     })
     
     df_sink_m_2 = pd.DataFrame({
-        'sink_m8': df_sink_p_2['sink_p8'] * df_sink_m['Total\nType A\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m10': df_sink_p_2['sink_p10'] * df_sink_m['Total\nType B\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m11': df_sink_p_2['sink_p11'] * df_sink_m['Total\nType C\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
+        'sink_m8' : df_sink_p_2['sink_p8']  * df_Cornell_transform_map['TypeA_PtoM'] / 60 / 60,
+        'sink_m10': df_sink_p_2['sink_p10'] * df_Cornell_transform_map['TypeB_PtoM'] / 60 / 60,
+        'sink_m11': df_sink_p_2['sink_p11'] * df_Cornell_transform_map['TypeC_PtoM'] / 60 / 60,
     })
 
-    for i in range(len(df_sink_p)):
+    for i in range(len(df_Cornell)):
         for j in ['Type A MWth', 'Type B MWth', 'Type C MWth']:
-            df_sink_p[j][i] = df_sink_p[j][i] * random.uniform(0.8, 1.2)
+            df_Cornell[j][i] = df_Cornell[j][i] * random.uniform(0.8, 1.2)
 
     df_sink_p_3 = pd.DataFrame({
-        'sink_p13': df_sink_p['Type A MWth'] * sink7_max_p,
-        'sink_p14': df_sink_p['Type B MWth'] * sink8_max_p,
-        'sink_p16': df_sink_p['Type C MWth'] * sink9_max_p,
+        'sink_p13': df_Cornell['Type A MWth'] * sink7_max_p,
+        'sink_p14': df_Cornell['Type B MWth'] * sink8_max_p,
+        'sink_p16': df_Cornell['Type C MWth'] * sink9_max_p,
     })
     
     df_sink_m_3 = pd.DataFrame({
-        'sink_m13': df_sink_p_3['sink_p13'] * df_sink_m['Total\nType A\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m14': df_sink_p_3['sink_p14'] * df_sink_m['Total\nType B\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m16': df_sink_p_3['sink_p16'] * df_sink_m['Total\nType C\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
+        'sink_m13': df_sink_p_3['sink_p13'] * df_Cornell_transform_map['TypeA_PtoM'] / 60 / 60,
+        'sink_m14': df_sink_p_3['sink_p14'] * df_Cornell_transform_map['TypeB_PtoM'] / 60 / 60,
+        'sink_m16': df_sink_p_3['sink_p16'] * df_Cornell_transform_map['TypeC_PtoM'] / 60 / 60,
     })
 
-    for i in range(len(df_sink_p)):
+    for i in range(len(df_Cornell)):
         for j in ['Type A MWth', 'Type B MWth', 'Type C MWth']:
-            df_sink_p[j][i] = df_sink_p[j][i] * random.uniform(0.8, 1.2)
+            df_Cornell[j][i] = df_Cornell[j][i] * random.uniform(0.8, 1.2)
 
     df_sink_p_4 = pd.DataFrame({
-        'sink_p17': df_sink_p['Type A MWth'] * sink10_max_p,
-        'sink_p20': df_sink_p['Type B MWth'] * sink11_max_p,
-        'sink_p21': df_sink_p['Type C MWth'] * sink12_max_p,
+        'sink_p17': df_Cornell['Type A MWth'] * sink10_max_p,
+        'sink_p20': df_Cornell['Type B MWth'] * sink11_max_p,
+        'sink_p21': df_Cornell['Type C MWth'] * sink12_max_p,
     })
     
     df_sink_m_4 = pd.DataFrame({
-        'sink_m17': df_sink_p_4['sink_p17'] * df_sink_m['Total\nType A\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m20': df_sink_p_4['sink_p20'] * df_sink_m['Total\nType B\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m21': df_sink_p_4['sink_p21'] * df_sink_m['Total\nType C\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
+        'sink_m17': df_sink_p_4['sink_p17'] * df_Cornell_transform_map['TypeA_PtoM'] / 60 / 60,
+        'sink_m20': df_sink_p_4['sink_p20'] * df_Cornell_transform_map['TypeB_PtoM'] / 60 / 60,
+        'sink_m21': df_sink_p_4['sink_p21'] * df_Cornell_transform_map['TypeC_PtoM'] / 60 / 60,
     })
 
-    for i in range(len(df_sink_p)):
+    for i in range(len(df_Cornell)):
         for j in ['Type A MWth', 'Type B MWth', 'Type C MWth']:
-            df_sink_p[j][i] = df_sink_p[j][i] * random.uniform(0.8, 1.2)
+            df_Cornell[j][i] = df_Cornell[j][i] * random.uniform(0.8, 1.2)
 
     df_sink_p_5 = pd.DataFrame({
-        'sink_p23': df_sink_p['Type A MWth'] * sink13_max_p,
-        'sink_p24': df_sink_p['Type B MWth'] * sink14_max_p,
-        'sink_p26': df_sink_p['Type C MWth'] * sink15_max_p,
+        'sink_p23': df_Cornell['Type A MWth'] * sink13_max_p,
+        'sink_p24': df_Cornell['Type B MWth'] * sink14_max_p,
+        'sink_p26': df_Cornell['Type C MWth'] * sink15_max_p,
     })
     
     df_sink_m_5 = pd.DataFrame({
-        'sink_m23': df_sink_p_5['sink_p23'] * df_sink_m['Total\nType A\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m24': df_sink_p_5['sink_p24'] * df_sink_m['Total\nType B\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m26': df_sink_p_5['sink_p26'] * df_sink_m['Total\nType C\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
+        'sink_m23': df_sink_p_5['sink_p23'] * df_Cornell_transform_map['TypeA_PtoM'] / 60 / 60,
+        'sink_m24': df_sink_p_5['sink_p24'] * df_Cornell_transform_map['TypeB_PtoM'] / 60 / 60,
+        'sink_m26': df_sink_p_5['sink_p26'] * df_Cornell_transform_map['TypeC_PtoM'] / 60 / 60,
     })
 
-    for i in range(len(df_sink_p)):
+    for i in range(len(df_Cornell)):
         for j in ['Type A MWth', 'Type B MWth', 'Type C MWth']:
-            df_sink_p[j][i] = df_sink_p[j][i] * random.uniform(0.8, 1.2)
+            df_Cornell[j][i] = df_Cornell[j][i] * random.uniform(0.8, 1.2)
 
     df_sink_p_6 = pd.DataFrame({
-        'sink_p27': df_sink_p['Type A MWth'] * sink16_max_p,
-        'sink_p29': df_sink_p['Type B MWth'] * sink17_max_p,
-        'sink_p30': df_sink_p['Type C MWth'] * sink18_max_p,
+        'sink_p27': df_Cornell['Type A MWth'] * sink16_max_p,
+        'sink_p29': df_Cornell['Type B MWth'] * sink17_max_p,
+        'sink_p30': df_Cornell['Type C MWth'] * sink18_max_p,
     })
     
     df_sink_m_6 = pd.DataFrame({
-        'sink_m27': df_sink_p_6['sink_p27'] * df_sink_m['Total\nType A\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m29': df_sink_p_6['sink_p29'] * df_sink_m['Total\nType B\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m30': df_sink_p_6['sink_p30'] * df_sink_m['Total\nType C\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
+        'sink_m27': df_sink_p_6['sink_p27'] * df_Cornell_transform_map['TypeA_PtoM'] / 60 / 60,
+        'sink_m29': df_sink_p_6['sink_p29'] * df_Cornell_transform_map['TypeB_PtoM'] / 60 / 60,
+        'sink_m30': df_sink_p_6['sink_p30'] * df_Cornell_transform_map['TypeC_PtoM'] / 60 / 60,
     })
 
-    for i in range(len(df_sink_p)):
+    for i in range(len(df_Cornell)):
         for j in ['Type A MWth', 'Type B MWth']:
-            df_sink_p[j][i] = df_sink_p[j][i] * random.uniform(0.8, 1.2)
+            df_Cornell[j][i] = df_Cornell[j][i] * random.uniform(0.8, 1.2)
 
     df_sink_p_7 = pd.DataFrame({
-        'sink_p31': df_sink_p['Type A MWth'] * sink19_max_p,
-        'sink_p32': df_sink_p['Type B MWth'] * sink20_max_p,
+        'sink_p31': df_Cornell['Type A MWth'] * sink19_max_p,
+        'sink_p32': df_Cornell['Type B MWth'] * sink20_max_p,
     })
     
     df_sink_m_7 = pd.DataFrame({
-        'sink_m31': df_sink_p_7['sink_p31'] * df_sink_m['Total\nType A\nBuildings lbs steam'] * 0.45359237 / 60 / 60,
-        'sink_m32': df_sink_p_7['sink_p32'] * df_sink_m['Total\nType B\nBuildings lbs steam'] * 0.45359237 / 60 / 60
+        'sink_m31': df_sink_p_7['sink_p31'] * df_Cornell_transform_map['TypeA_PtoM'] / 60 / 60,
+        'sink_m32': df_sink_p_7['sink_p32'] * df_Cornell_transform_map['TypeB_PtoM'] / 60 / 60
     })
 
     for df in [df_sink_p_2, df_sink_p_3, df_sink_p_4, df_sink_p_5, df_sink_p_6, df_sink_p_7]:
@@ -208,7 +204,7 @@ def multiply_by_max(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load,
 
     return df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_sink_p_1, df_sink_m_1
 
-def save_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_profile, load_profile, sink_p_profile, sink_m_profile):
+def save_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_profile, load_profile, sink_p_profile, sink_m_profile, df_Cornell_transform_map):
     PV_profile.to_csv('./data/profile/PV_profile.csv')
     Wind_profile.to_csv('./data/profile/Wind_profile.csv')
     Electricity_price_profile.to_csv('./data/profile/Electricity_price_profile.csv')
@@ -216,6 +212,7 @@ def save_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_
     load_profile.to_csv('./data/profile/load_profile.csv')
     sink_p_profile.to_csv('./data/profile/sink_p_profile.csv')
     sink_m_profile.to_csv('./data/profile/sink_m_profile.csv')
+    df_Cornell_transform_map.to_csv('./data/Cornell_transform_map.csv')
 
 # Plot profile
 
@@ -242,9 +239,9 @@ def plot_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_
     print("fig2 done!")
 
     plt.figure(3)
-    Electricity_buy_price_plot_data = Electricity_price_profile['buy_price'].values[:plot_days] * 1629.42 # N.Y.C.'s Electricity price df.max()
+    Electricity_buy_price_plot_data = Electricity_price_profile['buy_price'].values[:plot_days] * 963.91 # N.Y.C.'s Electricity price df.max()
     plt.plot(x, Electricity_buy_price_plot_data, label='Buy_Price')
-    Electricity_sell_price_plot_data = Electricity_price_profile['sell_price'].values[:plot_days] * 1629.42  # N.Y.C.'s Electricity price df.max()
+    Electricity_sell_price_plot_data = Electricity_price_profile['sell_price'].values[:plot_days] * 963.91  # N.Y.C.'s Electricity price df.max()
     plt.plot(x, Electricity_sell_price_plot_data, label='Sell_Price')
     plt.xlabel('t (hour)')
     plt.ylabel('USD/MWeh')
@@ -253,7 +250,7 @@ def plot_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_
     print("fig3 done!")
 
     plt.figure(4)
-    Gas_price_plot_data = Gas_price_profile['price'].values[:plot_days] * 18.37 * 28.317 # Gas price df.max(), mcf to m³
+    Gas_price_plot_data = Gas_price_profile['price'].values[:plot_days] * 23.01 * 28.317 # Gas price df.max(), mcf to m³
     plt.plot(x, Gas_price_plot_data, label='Price')
     plt.xlabel('t (hour)')
     plt.ylabel('USD/m³')
@@ -305,20 +302,40 @@ def plot_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_
 
     plt.show()
 
+def create_MtoP_and_PtoM_transform_map(df_Cornell):
+    df_Cornell_transform_map = pd.DataFrame({
+        'TypeA_MtoP': df_Cornell['Type A MWth'] / df_Cornell['Type A kg'],
+        'TypeA_PtoM': df_Cornell['Type A kg'] / df_Cornell['Type A MWth'],
+        'TypeB_MtoP': df_Cornell['Type B MWth'] / df_Cornell['Type B kg'],
+        'TypeB_PtoM': df_Cornell['Type B kg'] / df_Cornell['Type B MWth'],
+        'TypeC_MtoP': df_Cornell['Type C MWth'] / df_Cornell['Type C kg'],
+        'TypeC_PtoM': df_Cornell['Type C kg'] / df_Cornell['Type C MWth'],
+        'Totals_MtoP': df_Cornell['Steam Totals MWth'] / df_Cornell['Steam Totals kg'],
+        'Totals_PtoM': df_Cornell['Steam Totals kg'] / df_Cornell['Steam Totals MWth'],
+    })
+
+    return df_Cornell_transform_map
+
 
 if __name__ == '__main__':
-    df_PV = pd.read_csv('data/raw_data/renewable_energy_source/ninja_pv_40.8667_-72.8500.csv', usecols=['local_time', 'electricity'], header=3)
-    df_Wind = pd.read_csv('data/raw_data/renewable_energy_source/ninja_wind_43.7853_-75.5753.csv', usecols=['local_time', 'electricity'], header=3)
-    df_Electricity_price = pd.read_csv('data/raw_data/20190101-20191231 NYISO Actual Energy Price.csv', usecols=['Date', 'LBMP', 'Zone'])
+    df_PV = pd.read_csv('data/raw_data/renewable_energy_source/ninja_pv_40.8667_-72.8500_2021.csv', usecols=['local_time', 'electricity'], header=3)
+    df_Wind = pd.read_csv('data/raw_data/renewable_energy_source/ninja_wind_43.7853_-75.5753_2021.csv', usecols=['local_time', 'electricity'], header=3)
+    df_Electricity_price = pd.read_csv('data/raw_data/20210101-20211231 NYISO Actual Energy Price.csv', usecols=['Date', 'LBMP', 'Zone'])
     df_Gas_price = pd.read_csv('data/raw_data/N3010US3m.csv', usecols=['U.S. Price of Natural Gas Delivered to Residential Consumers (Dollars per Thousand Cubic Feet)'], header=2)
-    df_load = pd.read_csv('data/raw_data/20190101-20191231 NYISO Hourly Actual Load.csv', usecols=['Date', 'Load', 'Zone'])
+    df_load = pd.read_csv('data/raw_data/20210101-20211231 NYISO Hourly Actual Load.csv', usecols=['Date', 'Load', 'Zone'])
+    df_Cornell = pd.read_csv('data/raw_data/Cornell_Hourly_Steam_Data_FY17 (for upload).csv', usecols=['Total\nType A\nBuildings lbs steam', 'Total\nType B\nBuildings lbs steam', 'Total\nType C\nBuildings lbs steam', 'Steam Totals lbs steam', 'Type A MWth', 'Type B MWth', 'Type C MWth', 'Steam Totals MWth'], thousands=",")
+    for i in ['Total\nType A\nBuildings lbs steam', 'Total\nType B\nBuildings lbs steam', 'Total\nType C\nBuildings lbs steam', 'Steam Totals lbs steam']:
+        df_Cornell[i] = df_Cornell[i] * 0.45359237
+    df_Cornell = df_Cornell.rename({'Total\nType A\nBuildings lbs steam': 'Type A kg', 'Total\nType B\nBuildings lbs steam': 'Type B kg', 'Total\nType C\nBuildings lbs steam': 'Type C kg', 'Steam Totals lbs steam': 'Steam Totals kg'}, axis='columns')
+
+    '''
     df_sink_p = pd.read_csv('data/raw_data/Cornell_Hourly_Steam_Data_FY17 (for upload).csv', usecols=['Type A MWth', 'Type B MWth', 'Type C MWth'])
     df_sink_m = pd.read_csv('data/raw_data/Cornell_Hourly_Steam_Data_FY17 (for upload).csv', usecols=['Total\nType A\nBuildings lbs steam', 'Total\nType B\nBuildings lbs steam', 'Total\nType C\nBuildings lbs steam'], thousands=",")
-
-    df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_sink_p, df_sink_m = reindex_normalization_interpolation(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_sink_p, df_sink_m)
-    PV_profile, Wind_profile, Electricity_price_profile, Gas_price_profile, load_profile, sink_p_profile, sink_m_profile = multiply_by_max(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_sink_p, df_sink_m)
-    save_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_profile, load_profile, sink_p_profile, sink_m_profile)
-
+    '''
+    df_Cornell_transform_map = create_MtoP_and_PtoM_transform_map(df_Cornell)
+    df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_Cornell, df_Cornell_transform_map = reindex_normalization_interpolation(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_Cornell, df_Cornell_transform_map)
+    PV_profile, Wind_profile, Electricity_price_profile, Gas_price_profile, load_profile, sink_p_profile, sink_m_profile = multiply_by_max(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_Cornell, df_Cornell_transform_map)
+    save_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_profile, load_profile, sink_p_profile, sink_m_profile, df_Cornell_transform_map)
     print("profile done!")
 
     plot_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_profile, load_profile, sink_p_profile, sink_m_profile, 365)

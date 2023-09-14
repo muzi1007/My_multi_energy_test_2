@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')         # pycharm bug
 import matplotlib.pyplot as plt
 
 def plot_learning_curve(x, scores, figure_file):

@@ -1,4 +1,7 @@
 import random
+import numpy as np
+
+SEQ_LENGTH = 24
 
 # load max power (MWe)
 load1_max_p = 1.85
@@ -72,8 +75,8 @@ E_Bat1_d_min = -1.
 E_Bat_c_max_list = [E_Bat1_c_max]
 E_Bat_d_min_list = [E_Bat1_d_min]
 
-# Thermal battery capacity (?), SoC min/max, charge/discharge min/max (?)
-Th_Bat1_E = 1
+# Thermal battery capacity (?), SoC min/max, charge/discharge min/max (kg)
+Th_Bat1_E = 8
 Th_Bat_E_list = [Th_Bat1_E]
 
 Th_SoC_max = 0.9
@@ -87,3 +90,15 @@ Th_Bat_d_min_list = [Th_Bat1_d_min]
 # Cost
 C_Electricity_price_max = 1
 C_Gas_price_max = 1
+
+# State
+N_INTERMITTENT_STATES = len([*load_max_p_list, *sink_max_p_list, *PV_max_p_list, *Wind_max_p_list, 'electricity_price', 'gas_price'])
+N_CONTROLLABLE_STATES = len([E_Bat1_c_max, Th_Bat1_c_max])
+STATE_SEQ_SHAPE = (SEQ_LENGTH, N_INTERMITTENT_STATES)
+STATE_FNN_SHAPE = (N_CONTROLLABLE_STATES,)
+
+# Action
+ACTION_IDX = {'E_Bat1': 0, 'Th_Bat1': 1}
+MAX_ACTION = np.array([E_Bat1_c_max, Th_Bat1_c_max])
+MIN_ACTION = np.array([E_Bat1_d_min, Th_Bat1_d_min])
+N_ACTION = len(MAX_ACTION)

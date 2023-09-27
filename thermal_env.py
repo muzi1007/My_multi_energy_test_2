@@ -24,21 +24,21 @@ def create_thermal_env(sink_ds, CHP_thermal_input_ds):
     # Create pipes, using same length and standard type
     # Main branch
     ppt.create_pipes(net, [junctions[i] for i in range(0, 17)], [junctions[i] for i in range(1, 18)], length_km=1.0, alpha_w_per_m2k=100,
-                     std_type="80_GGG", name=[f'line {i}-{i + 1}' for i in range(1, 18)])
+                     std_type="350_GGG", name=[f'line {i}-{i + 1}' for i in range(1, 18)])
     # Side branch 1
     ppt.create_pipes(net, [junctions[i] for i in range(18, 21)], [junctions[i] for i in range(19, 22)], length_km=1.0, alpha_w_per_m2k=100,
-                     std_type="80_GGG", name=[f'line {i}-{i + 1}' for i in range(19, 22)])
+                     std_type="350_GGG", name=[f'line {i}-{i + 1}' for i in range(19, 22)])
     # Side branch 2
     ppt.create_pipes(net, [junctions[i] for i in range(22, 24)], [junctions[i] for i in range(23, 25)], length_km=1.0, alpha_w_per_m2k=100,
-                     std_type="80_GGG", name=[f'line {i}-{i + 1}' for i in range(23, 25)])
+                     std_type="350_GGG", name=[f'line {i}-{i + 1}' for i in range(23, 25)])
     # Side branch 3
     ppt.create_pipes(net, [junctions[i] for i in range(25, 32)], [junctions[i] for i in range(26, 33)], length_km=1.0, alpha_w_per_m2k=100,
-                     std_type="80_GGG", name=[f'line {i}-{i + 1}' for i in range(26, 33)])
+                     std_type="350_GGG", name=[f'line {i}-{i + 1}' for i in range(26, 33)])
 
     # Connections between branches
-    ppt.create_pipe(net, junctions[1], junctions[18], length_km=1.0, alpha_w_per_m2k=100,  std_type="80_GGG", name='line 2-19')
-    ppt.create_pipe(net, junctions[2], junctions[22], length_km=1.0, alpha_w_per_m2k=100,  std_type="80_GGG", name='line 3-23')
-    ppt.create_pipe(net, junctions[5], junctions[25], length_km=1.0, alpha_w_per_m2k=100,  std_type="80_GGG", name='line 6-26')
+    ppt.create_pipe(net, junctions[1], junctions[18], length_km=1.0, alpha_w_per_m2k=100,  std_type="350_GGG", name='line 2-19')
+    ppt.create_pipe(net, junctions[2], junctions[22], length_km=1.0, alpha_w_per_m2k=100,  std_type="350_GGG", name='line 3-23')
+    ppt.create_pipe(net, junctions[5], junctions[25], length_km=1.0, alpha_w_per_m2k=100,  std_type="350_GGG", name='line 6-26')
 
     # Create pumps
     #ppt.create_circ_pump_const_pressure(net, junctions[21], junctions[20], p_flow_bar=10, plift_bar=2, t_flow_k=293.15)
@@ -55,7 +55,6 @@ def create_thermal_env(sink_ds, CHP_thermal_input_ds):
 
     # Create mass storages
     mass_storage1 = ppt.create_mass_storage(net, junctions[21], 0.0, max_m_stored_kg=Th_Bat1_E, name='Thermal Battery')
-
 
     # Create sinks
     sink1  = ppt.create_sink(net, junctions[0],  0.0,  name='sink 1',  in_service=True)

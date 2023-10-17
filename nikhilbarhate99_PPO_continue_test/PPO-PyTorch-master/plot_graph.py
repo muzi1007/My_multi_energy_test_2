@@ -12,7 +12,7 @@ def save_graph():
     # env_name = 'BipedalWalker-v2'
     env_name = 'Pendulum-v1'
 
-    fig_num = 2     #### change this to prevent overwriting figures in same env_name folder
+    fig_num = 3     #### change this to prevent overwriting figures in same env_name folder
     plot_avg = True    # plot average of all runs; else plot all runs separately
     fig_width = 10
     fig_height = 6
@@ -52,7 +52,7 @@ def save_graph():
 
     #for run_num in range(num_runs):
 
-    run_num = 2
+    run_num = 3
     log_f_name = './' + log_dir + 'PPO_' + env_name + "_log_" + str(run_num) + ".csv"
     print("loading data from : " + log_f_name)
     data = pd.read_csv(log_f_name)

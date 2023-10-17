@@ -45,15 +45,15 @@ def create_electric_env(PV_ds, Wind_ds, load_ds, load_state = None):
     ppe.create_ext_grid(net, buses[0], name='CHP') # 要改sgen?
 
     # Create batteries
-    battery1 = ppe.create_storage(net, buses[32], 0.0, max_e_mwh=E_Bat1_E, max_p_mw=E_Bat1_c_max, min_p_mw=E_Bat1_d_min, name='Electric Battery')
+    battery33 = ppe.create_storage(net, buses[32], 0.0, max_e_mwh=E_Bat1_E, max_p_mw=E_Bat1_c_max, min_p_mw=E_Bat1_d_min, name='Electric Battery')
 
     # Create PVs
-    pv1 = ppe.create_sgen(net, buses[21], 0.0, q_mvar=0, name='PV 1', type='PV')
-    ConstControl(net, element='sgen', variable='p_mw', element_index=pv1, profile_name='electricity', data_source=PV_ds)
+    pv22 = ppe.create_sgen(net, buses[21], 0.0, q_mvar=0, name='PV', type='PV')
+    ConstControl(net, element='sgen', variable='p_mw', element_index=pv22, profile_name='electricity', data_source=PV_ds)
 
     # Create Wind turbines
-    wind1 = ppe.create_sgen(net, buses[17], 0.0, q_mvar=0, name='Wind turbine 1', type='Wind Turbine')
-    ConstControl(net, element='sgen', variable='p_mw', element_index=wind1, profile_name='electricity', data_source=Wind_ds)
+    wind18 = ppe.create_sgen(net, buses[17], 0.0, q_mvar=0, name='Wind turbine', type='Wind Turbine')
+    ConstControl(net, element='sgen', variable='p_mw', element_index=wind18, profile_name='electricity', data_source=Wind_ds)
 
     # Create loads
     load1  =  ppe.create_load(net, buses[0],  0.0, q_mvar=0, name='load 1',  in_service=True)
@@ -97,10 +97,17 @@ def create_electric_env(PV_ds, Wind_ds, load_ds, load_state = None):
     ConstControl(net, element='load', variable='p_mw', element_index=load31, profile_name='load31', data_source=load_ds)
     ConstControl(net, element='load', variable='p_mw', element_index=load32, profile_name='load32', data_source=load_ds)
 
+    #svc23 = ppe.create_svc(net, buses[22], x_l_ohm=1, x_cvar_ohm=-10, set_vm_pu=1, thyristor_firing_angle_degree=90, controllable=True, in_service=True)
+    #svc26 = ppe.create_svc(net, buses[25], x_l_ohm=1, x_cvar_ohm=-10, set_vm_pu=1, thyristor_firing_angle_degree=90, controllable=True, in_service=True)
+    #svc7  = ppe.create_svc(net, buses[6],  x_l_ohm=1, x_cvar_ohm=-10, set_vm_pu=1, thyristor_firing_angle_degree=90, controllable=True, in_service=True)
+    #svc19 = ppe.create_svc(net, buses[18], x_l_ohm=1, x_cvar_ohm=-10, set_vm_pu=1, thyristor_firing_angle_degree=90, controllable=True, in_service=True)
+    svc6 = ppe.create_svc(net, buses[5], x_l_ohm=1, x_cvar_ohm=-10, set_vm_pu=1, thyristor_firing_angle_degree=90, controllable=True, in_service=True)
+    svc3 = ppe.create_svc(net, buses[2], x_l_ohm=1, x_cvar_ohm=-10, set_vm_pu=1, thyristor_firing_angle_degree=90, controllable=True, in_service=True)
+
     ids = {
-        'pv1': pv1,
-        'wind1': wind1,
-        'battery1': battery1,
+        'pv': pv22,
+        'wind': wind18,
+        'battery': battery33,
         'load1': load1, 'load4': load4, 'load5': load5, 'load7': load7, 'load9': load9, 'load10': load10, 'load11': load11, 'load12': load12,
         'load14': load14, 'load15': load15, 'load16': load16, 'load18': load18, 'load19': load19, 'load23': load23, 'load24': load24,
         'load26': load26, 'load28': load28, 'load30': load30, 'load31': load31, 'load32': load32
@@ -125,8 +132,9 @@ if __name__ == "__main__":
     owr = ow.OutputWriter(electric_net, output_path="./data/3_days_test_without_actions/output_writer/electric_net", output_file_type=".csv", csv_separator=',')
     owr.log_variable('res_ext_grid', 'p_mw')
     owr.log_variable('res_load', 'p_mw')
+    owr.log_variable('res_bus', 'q_mvar')
+    owr.log_variable('res_svc', 'x_ohm')
     ts.run_timeseries(electric_net, time_steps=simulation_hours, continue_on_divergence=False)
-
 
     #ppe.plotting.simple_plot(electric_net, plot_gens=True, plot_sgens=True, plot_line_switches=True, plot_loads=True)
     #ppe.plotting.to_html(electric_net, 'env/electric_net_test.html')

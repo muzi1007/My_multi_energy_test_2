@@ -1,9 +1,6 @@
 import torch
 import torch.nn as nn
 
-import numpy as np
-import pandas as pd
-
 from sklearn.preprocessing import MinMaxScaler
 
 def LSTM_train(train_data, train_window, epochs):

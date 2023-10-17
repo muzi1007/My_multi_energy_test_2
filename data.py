@@ -1,5 +1,7 @@
 import pandas as pd
 from parameters import *
+import matplotlib
+matplotlib.use('TkAgg')         # pycharm bug
 import matplotlib.pyplot as plt
 
 # Create profile
@@ -327,7 +329,6 @@ if __name__ == '__main__':
     for i in ['Total\nType A\nBuildings lbs steam', 'Total\nType B\nBuildings lbs steam', 'Total\nType C\nBuildings lbs steam', 'Steam Totals lbs steam']:
         df_Cornell[i] = df_Cornell[i] * 0.45359237
     df_Cornell = df_Cornell.rename({'Total\nType A\nBuildings lbs steam': 'Type A kg', 'Total\nType B\nBuildings lbs steam': 'Type B kg', 'Total\nType C\nBuildings lbs steam': 'Type C kg', 'Steam Totals lbs steam': 'Steam Totals kg'}, axis='columns')
-
     '''
     df_sink_p = pd.read_csv('data/raw_data/Cornell_Hourly_Steam_Data_FY17 (for upload).csv', usecols=['Type A MWth', 'Type B MWth', 'Type C MWth'])
     df_sink_m = pd.read_csv('data/raw_data/Cornell_Hourly_Steam_Data_FY17 (for upload).csv', usecols=['Total\nType A\nBuildings lbs steam', 'Total\nType B\nBuildings lbs steam', 'Total\nType C\nBuildings lbs steam'], thousands=",")

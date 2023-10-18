@@ -5,7 +5,6 @@ matplotlib.use('TkAgg')         # pycharm bug
 import matplotlib.pyplot as plt
 
 # Create profile
-
 def reindex_normalization_interpolation(df_PV, df_Wind, df_Electricity_price, df_Gas_price, df_load, df_Cornell, df_Cornell_transform_map):
     #print(f'maximum value before normalization: {df_PV["electricity"].max()},\n {df_Wind["electricity"].max()},\n {df_Electricity_price.max()},\n {df_load.max()},\n {df_sink.max()}\n')
 
@@ -217,7 +216,6 @@ def save_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_
     df_Cornell_transform_map.to_csv('./data/Cornell_transform_map.csv')
 
 # Plot profile
-
 def plot_profile(PV_profile, Wind_profile, Electricity_price_profile, Gas_price_profile, load_profile, sink_p_profile, sink_m_profile, plot_days):
     plot_days = plot_days * 24
     x = range(0, plot_days)

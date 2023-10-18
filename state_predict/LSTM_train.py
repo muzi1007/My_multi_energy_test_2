@@ -1,27 +1,28 @@
+import numpy as np
 import torch
 import torch.nn as nn
 
 from sklearn.preprocessing import MinMaxScaler
 
-def LSTM_train(train_data, train_window, epochs):
+def LSTM_train(train_data, train_window, epochs, predict_window):
 
-    scaler = MinMaxScaler(feature_range=(-1, 1))
-    train_data = scaler.fit_transform(train_data.reshape(-1, 1))
+    scaler_train = MinMaxScaler(feature_range=(0, 1))
+    train_data = scaler_train.fit_transform(train_data.reshape(-1, 1))
     train_data = torch.FloatTensor(train_data).view(-1)
 
     def create_inout_sequences(input_data, train_window):
         inout_seq = []
         L = len(input_data)
-        for i in range(L-train_window):
+        for i in range(L-train_window-predict_window):
             train_seq = input_data[i:i+train_window]
-            train_label = input_data[i+train_window:i+train_window+1]
+            train_label = input_data[i+train_window:i+train_window+predict_window]
             inout_seq.append((train_seq, train_label))
         return inout_seq
 
     train_inout_seq = create_inout_sequences(train_data, train_window)
 
     class LSTM(nn.Module):
-        def __init__(self, input_size=1, hidden_layer_size=256, output_size=1):
+        def __init__(self, input_size=1, hidden_layer_size=256, output_size=predict_window):
             super().__init__()
             self.hidden_layer_size = hidden_layer_size
 
@@ -31,7 +32,7 @@ def LSTM_train(train_data, train_window, epochs):
         def forward(self, input_seq):
             lstm_out, self.hidden_cell = self.lstm(input_seq.view(len(input_seq) ,1, -1), self.hidden_cell)
             predictions = self.linear(lstm_out.view(len(input_seq), -1))
-            return predictions[-1]
+            return predictions[-predict_window]
 
     model = LSTM()
     loss_function = nn.MSELoss()
@@ -59,4 +60,4 @@ def LSTM_train(train_data, train_window, epochs):
 
     print("--------------------------------------------------------------------------------------------")
 
-    return model, scaler
+    return model, scaler_train

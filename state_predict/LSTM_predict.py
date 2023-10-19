@@ -10,6 +10,9 @@ from LSTM_train import LSTM_train
 
 from tqdm import tqdm
 
+import datetime
+import calendar
+
 def predict(model, scaler_train, test_data, train_window):
     model.eval()
 
@@ -48,6 +51,8 @@ def main(data_name, data_usecols, train_window, predict_window, epochs):
 
     if data_name == 'sink_m':
         actual_predict = actual_predict.clip(max=0)
+    elif data_name =='Electricity_price':
+        pass
     else:
         actual_predict = actual_predict.clip(min=0)
 
@@ -59,17 +64,16 @@ def main(data_name, data_usecols, train_window, predict_window, epochs):
             for index_j, j in enumerate(range(len(df_predict.columns))):
                 if i+j+1 not in [7,8,9,10,11,12,13,14,15,16,17,18,19]:
                     df_predict.iloc[index_i, index_j] = 0
-
-    df_predict.to_csv(f'./data/LSTM_predict_data/{data_name}_predict_{predict_window}_profile.csv')
+    df_predict.to_csv(f'./data/LSTM_predict_data/{data_name}_{data_usecols}_predict_{predict_window}_profile.csv')
 
     plt.figure()
     plt.grid(True)
     plt.autoscale(axis='x', tight=True)
-    plt.plot(test_data[24:96])
-    plt.plot(actual_predict[:72,0])
-    plt.title(f'{data_name}_predict_{predict_window}')
-    plt.legend(['ture_data', 'predict_data'])
-    plt.savefig(f'./figs/{data_name}_predict_{predict_window}.png')
+    plt.plot(test_data[24:240])
+    plt.plot(actual_predict[:240-24,0])
+    plt.title(f'{data_name}_{data_usecols}_predict_{predict_window}')
+    plt.legend(['ture_data', 'predict_data'], loc='upper right')
+    plt.savefig(f'./figs/{data_name}_{data_usecols}_predict_{predict_window}.png')
     plt.show()
     plt.close()
 
@@ -82,12 +86,13 @@ if __name__ == '__main__':
     for predict_window in [1, 3, 12]:
         main('PV', 'electricity', train_window, predict_window, epochs)
         main('Wind', 'electricity', train_window, predict_window, epochs)
-        main('Gas_price', 'price', train_window, predict_window, epochs)
         main('Electricity_price', 'buy_price', train_window, predict_window, epochs)
         main('Electricity_price', 'sell_price', train_window, predict_window, epochs)
         for i in [f'load{j}'for j in [1,4,5,7,9,10,11,12,14,15,16,18,17,23,24,26,28,30,31,32]]:
-            main('load', 'i', train_window, predict_window, epochs)
+            main('load', i, train_window, predict_window, epochs)
         for i in [f'sink_m{j}' for j in [1,4,7,8,10,11,13,14,16,17,2,21,23,24,26,27,29,30,31,32]]:
-            main('sink_m', 'i', train_window, predict_window, epochs)
+            main('sink_m', i, train_window, predict_window, epochs)
+        '''
         for i in [f'sink_p{j}' for j in [1,4,7,8,10,11,13,14,16,17,2,21,23,24,26,27,29,30,31,32]]:
-            main('sink_p', 'i', train_window, predict_window, epochs)
+            main('sink_p', i, train_window, predict_window, epochs)
+        '''

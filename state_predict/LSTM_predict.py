@@ -10,9 +10,6 @@ from LSTM_train import LSTM_train
 
 from tqdm import tqdm
 
-import datetime
-import calendar
-
 def predict(model, scaler_train, test_data, train_window):
     model.eval()
 

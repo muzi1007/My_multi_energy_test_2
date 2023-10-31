@@ -1,8 +1,12 @@
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 
 from sklearn.preprocessing import MinMaxScaler
+
+from tqdm import tqdm
+import time
 
 def LSTM_train(train_data, train_window, epochs, predict_window):
 
@@ -37,9 +41,10 @@ def LSTM_train(train_data, train_window, epochs, predict_window):
     model = LSTM()
     loss_function = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    print(model)
+    #print(model)
 
-    for i in range(epochs):
+    print(' * training:')
+    for i in tqdm(range(epochs)):
         for seq, labels in train_inout_seq:
             optimizer.zero_grad()
             model.hidden_cell = (torch.zeros(1, 1, model.hidden_layer_size),
@@ -51,13 +56,12 @@ def LSTM_train(train_data, train_window, epochs, predict_window):
             single_loss.backward()
             optimizer.step()
 
-        print(f'epoch: {i:3}')
-
+        #print(f'epoch: {i:3}')
+        '''
         if i % 25 == 0:
             print(f'epoch: {i:3} loss: {single_loss.item():10.8f}')
-
-    print(f'epoch: {i:3}, loss: {single_loss.item():10.10f}')
-
-    print("--------------------------------------------------------------------------------------------")
+        '''
+    #rint(f'epoch: {i:3}, loss: {single_loss.item():10.10f}')
+    time.sleep(0.01)
 
     return model, scaler_train

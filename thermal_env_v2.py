@@ -11,6 +11,8 @@ from parameters import *
 class thermal_env_v2():
     def __init__(self):
         self.net = ppt.create_empty_network(fluid="air")
+        self.state_space_ids = ['sinks', 'mass_storage_mass_percent', 'gas_price']
+        self.action_space_ids = ['CHP_m', 'Heat_Pump_m', 'Natural_Gas_Boiler_m', 'mass_storage_m']
 
         # Create junctions
         junctions = ppt.create_junctions(self.net, 33, pn_bar=12, tfluid_k=303.15, name=[f'Bus {i}' for i in range(1, 33 + 1)], type='j')
@@ -33,7 +35,7 @@ class thermal_env_v2():
         ppt.create_ext_grid(self.net, junctions[32], p_bar=14, t_k=303.15, name="Grid Connection")
 
         # Create mass storages
-        self.mass_storage22 = ppt.create_mass_storage(self.net, junctions[21], mdot_kg_per_s=0.0, max_m_stored_kg=Th_Bat1_E, init_m_stored_kg=0, name='Thermal Battery')
+        self.mass_storage = ppt.create_mass_storage(self.net, junctions[21], mdot_kg_per_s=0.0, max_m_stored_kg=Th_Bat1_E, init_m_stored_kg=0, name='Thermal Battery')
 
         # Create source
         self.CHP_thermal = ppt.create_source(self.net, junctions[0], mdot_kg_per_s=0.0, name="CHP")
@@ -62,9 +64,10 @@ class thermal_env_v2():
         self.sink31 = ppt.create_sink(self.net, junctions[30], mdot_kg_per_s=0.0,  name='sink 31', in_service=True)
         self.sink32 = ppt.create_sink(self.net, junctions[31], mdot_kg_per_s=0.0,  name='sink 32', in_service=True)
 
-    def modify_values(self, mass_storage_m, CHP_thermal_m, Heat_Pump_m, Natural_Gas_Boiler_m, sinks_m):
+    def modify_values(self, mass_storage_m, mass_storage_mass_percent, CHP_m, Heat_Pump_m, Natural_Gas_Boiler_m, sinks_m):
         self.net.mass_storage.at[0, 'mdot_kg_per_s'] = mass_storage_m
-        self.net.source.at[0, 'mdot_kg_per_s'] = CHP_thermal_m
+        self.net.mass_storage.at[0, 'init_m_stored_kg'] = mass_storage_mass_percent
+        self.net.source.at[0, 'mdot_kg_per_s'] = CHP_m
         self.net.source.at[1, 'mdot_kg_per_s'] = Heat_Pump_m
         self.net.source.at[2, 'mdot_kg_per_s'] = Natural_Gas_Boiler_m
         for i in range(20):
@@ -73,17 +76,21 @@ class thermal_env_v2():
     def run_flow(self):
         ppt.pipeflow(self.net)
 
-    def get_next_remaining_mass(self, mass_storage22_mass_percent):
-        self.mass_storage22_mass_percent = mass_storage22_mass_percent
-        self.mass_storage22_m = self.net.mass_storage['mdot_kg_per_s']
-        self.mass_storage22_max_mass = self.net.mass_storage['max_m_stored_kg']
-        self.mass_storage22_next_mass_percent = self.mass_storage22_mass_percent + (self.mass_storage22_m * 60 * 60) / self.mass_storage22_max_mass
-        return self.mass_storage22_next_mass_percent
+    def get_next_remaining_mass(self):
+        # calculating mass_storage_percent of battery at next step
+        self.mass_storage_m = self.net.mass_storage['mdot_kg_per_s']
+        self.mass_storage_max_mass = self.net.mass_storage['max_m_stored_kg']
+        self.mass_storage_mass_percent = self.net.mass_storage['init_m_stored_kg']
+        self.mass_storage_next_mass_percent = self.mass_storage_mass_percent + (self.mass_storage_m * 60 * 60) / self.mass_storage_max_mass
+        return self.mass_storage_next_mass_percent
+
+    def simple_plot(self):
+        ppt.plotting.simple_plot(self.net, plot_sinks=True, plot_sources=True, pump_size=0.5)
 
 if __name__ == "__main__":
     """
     Functional Test
     """
     thermal_net = thermal_env_v2()
-    ppt.pipeflow(thermal_net.net)
-    ppt.plotting.simple_plot(thermal_net.net, plot_sinks=True, plot_sources=True, pump_size=0.5)
+    thermal_net.run_flow()
+    thermal_net.simple_plot()

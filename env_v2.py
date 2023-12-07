@@ -79,6 +79,7 @@ class env_v2():
         return self.states_records_df, self.actions_records_df
 
     def step(self, time_step, actions):
+        # 這裡要改成實際值，buffer存的state和next_state是預測值！
         self.loads = self.electric_net.loads_data.iloc[time_step, 0]
         self.pv_p = self.electric_net.pv_data.iloc[time_step, 0]
         self.wind_p = self.electric_net.wind_data.iloc[time_step, 0]

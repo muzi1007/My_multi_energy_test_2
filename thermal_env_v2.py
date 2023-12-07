@@ -9,10 +9,22 @@ import pandapipes as ppt
 from parameters import *
 
 class thermal_env_v2():
-    def __init__(self):
+    def __init__(self, future_style='random_noise', compress_style='PCA', future_scale=1):
         self.net = ppt.create_empty_network(fluid="air")
-        self.state_space_ids = ['sinks', 'mass_storage_mass_percent', 'gas_price']
+        self.state_space_ids = ['sinks_m', 'mass_storage_mass_percent', 'gas_price']
         self.action_space_ids = ['CHP_m', 'Heat_Pump_m', 'Natural_Gas_Boiler_m', 'mass_storage_m']
+        self.future_style = future_style
+        self.compress_style = compress_style
+        self.future_scale = future_scale
+        self.time_step = 0
+        if self.future_style == 'random_noise' and self.compress_style == 'PCA':
+            self.sinks_m_data = pd.read_csv(f'../state_compress/randomized_{self.future_scale}_reduced_states/sink_m_randomized_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+        elif self.future_style == 'LSTM_predict' and self.compress_style == 'PCA':
+            self.sinks_m_data = pd.read_csv(f'../state_compress/LSTM_predict_{self.future_scale}_reduced_states/sink_m_predict_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+        self.gas_price_data = pd.read_csv(f'../data/profile/gas_price_profile.csv', usecols=['price']) # ?
+
+        self.sinks_m = self.sinks_m_data.iloc[0, 0]
+        self.gas_price = self.gas_price_data.iloc[0, 0]
 
         # Create junctions
         junctions = ppt.create_junctions(self.net, 33, pn_bar=12, tfluid_k=303.15, name=[f'Bus {i}' for i in range(1, 33 + 1)], type='j')

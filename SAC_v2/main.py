@@ -7,34 +7,36 @@ from env_v2 import *
 
 if __name__ == '__main__':
     env = env_v2()
-    agent = Agent(input_dims=env.state_space, env=env, n_actions=env.action_space)
+    agent = Agent(input_dims=[env.state_space], env=env, n_actions=env.action_space)
 
-    n_episode = 3000
-    filename = 'plt-v1.png'
-
+    n_games = 3000
+    # uncomment this line and do a mkdir tmp && mkdir video if you want to
+    # record video of the agent playing the game.
+    #env = wrappers.Monitor(env, 'tmp/video', video_callable=lambda episode_id: True, force=True)
+    filename = 'env_v2-v1.png'
     figure_file = 'plots/' + filename
 
-    best_score = env.reward_range[0]
+    best_score = float('inf')
     score_history = []
     load_checkpoint = False
 
-    n_steps = 0
+    #n_steps = 0
 
     if load_checkpoint:
         agent.load_models()
-        # env.render(mode='human')
+        #env.render(mode='human')
 
-    for i in range(n_episode):
-        observation = env.reset()[0]
+    for i in range(n_games):
+        observation = env.reset()
         done = False
         score = 0
-        #n_steps = 0
+        n_steps = 0
         while not done:
-            action = agent.choose_action(observation)
-            observation_, reward, done, info = env.step(action)[0:4]
+            actions = agent.choose_action(observation)
+            observation_, reward, done = env.step(n_steps, actions)
             n_steps += 1
             score += reward
-            agent.remember(observation, action, reward, observation_, done)
+            agent.remember(observation, actions, reward, observation_, done)
             if not load_checkpoint:
                 agent.learn()
             observation = observation_

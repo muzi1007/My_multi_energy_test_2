@@ -9,10 +9,32 @@ import pandapower as ppe
 from parameters import *
 
 class electric_env_v2():
-    def __init__(self):
+    def __init__(self, future_style='random_noise', compress_style='PCA', future_scale=1):
         self.net = ppe.networks.case33bw()
         self.state_space_ids = ['loads', 'pv_p', 'wind_p', 'battery_soc_percent', 'electricity_price']
         self.action_space_ids = ['CHP_p', 'battery_p']
+        self.future_style = future_style
+        self.compress_style = compress_style
+        self.future_scale = future_scale
+        self.time_step = 0
+        if self.future_style == 'random_noise' and self.compress_style == 'PCA':
+            self.loads_data = pd.read_csv(f'../state_compress/randomized_{self.future_scale}_reduced_states/load_randomized_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.pv_data = pd.read_csv(f'../state_compress/randomized_{self.future_scale}_reduced_states/PV_electricity_randomized_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.wind_data = pd.read_csv(f'../state_compress/randomized_{self.future_scale}_reduced_states/Wind_electricity_randomized_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.electricity_buy_price_data = pd.read_csv(f'../state_compress/randomized_{self.future_scale}_reduced_states/Electricity_price_buy_price_randomized_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.electricity_sell_price_data = pd.read_csv(f'../state_compress/randomized_{self.future_scale}_reduced_states/Electricity_price_sell_price_randomized_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+        elif self.future_style == 'LSTM_predict' and self.compress_style == 'PCA':
+            self.loads_data = pd.read_csv(f'../state_compress/LSTM_predict_{self.future_scale}_reduced_states/load_predict_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.pv_data = pd.read_csv(f'../state_compress/LSTM_predict_{self.future_scale}_reduced_states/PV_electricity_predict_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.wind_data = pd.read_csv(f'../state_compress/LSTM_predict_{self.future_scale}_reduced_states/Wind_electricity_predict_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.electricity_buy_price_data = pd.read_csv(f'../state_compress/LSTM_predict_{self.future_scale}_reduced_states/Electricity_price_buy_price_predict_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.electricity_sell_price_data = pd.read_csv(f'../state_compress/LSTM_predict_{self.future_scale}_reduced_states/Electricity_price_sell_price_predict_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+
+        self.loads = self.loads_data.iloc[0, 0]
+        self.pv_p = self.pv_data.iloc[0, 0]
+        self.wind_p = self.wind_data.iloc[0, 0]
+        self.electric_buy_price = self.electricity_buy_price_data.iloc[0, 0]
+        self.electric_sell_price = self.electricity_sell_price_data.iloc[0, 0]
 
         # Calculate cos_phi
         '''
@@ -43,6 +65,7 @@ class electric_env_v2():
         self.net.sgen.at[0, 'p_mw'] = pv_p
         self.net.sgen.at[1, 'p_mw'] = wind_p
         self.net.sgen.at[2, 'p_mw'] = CHP_p
+        print(loads)
         for i in range(20):
             self.net.load.at[i, 'p_mw']  = loads[i]
             self.net.load.at[i, 'q_var'] = loads[i] * self.load_cos_phi

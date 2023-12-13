@@ -64,14 +64,14 @@ Wind1_max_p = 12
 Wind_max_p_list = [Wind1_max_p]
 
 # Battery capacity (MWh), SoC min/max, charge/discharge min/max (MW)
-E_Bat1_E = 2
+E_Bat1_E = 20
 E_Bat_E_list = [E_Bat1_E]
 
-E_SoC_max = 0.9
-E_SoC_min = 0.1
+E_SoC_max = 1
+E_SoC_min = 0
 
-E_Bat1_c_max = 1. # Original charge/discharge are 0.8, -0.8
-E_Bat1_d_min = -1.
+E_Bat1_c_max = 2. # Original charge/discharge are 0.8, -0.8
+E_Bat1_d_min = -2.
 E_Bat_c_max_list = [E_Bat1_c_max]
 E_Bat_d_min_list = [E_Bat1_d_min]
 

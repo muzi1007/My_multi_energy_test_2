@@ -9,8 +9,18 @@ import pandapipes as ppt
 from parameters import *
 
 class thermal_env_v2():
-    def __init__(self, future_style='random_noise', compress_style='PCA', future_scale=1):
+    def __init__(self, future_style='random_noise', compress_style='PCA', future_scale=1, test=0):
         self.net = ppt.create_empty_network(fluid="air")
+
+        if test == 1: self.path_prefix = '.'
+        else: self.path_prefix = '..'
+
+        '''
+        false_some_sinks_test = 0
+        if false_some_sinks_test == 1:
+            for i in range(18):
+                self.net.sink.at[i, 'in_service'] = False
+        '''
         self.state_space_ids = ['sinks_m', 'mass_storage_mass_percent', 'gas_price']
         self.action_space_ids = ['CHP_m', 'Heat_Pump_m', 'Natural_Gas_Boiler_m', 'mass_storage_m']
         self.future_style = future_style
@@ -18,16 +28,19 @@ class thermal_env_v2():
         self.future_scale = future_scale
         self.time_step = 0
         if self.future_style == 'random_noise' and self.compress_style == 'PCA':
-            self.sinks_m_data = pd.read_csv(f'../state_compress/randomized_{self.future_scale}_reduced_states/sink_m_randomized_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+            self.compress_sinks_m_data = pd.read_csv(f'{self.path_prefix}/state_compress/randomized_{self.future_scale}_reduced_states/sink_m_randomized_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
         elif self.future_style == 'LSTM_predict' and self.compress_style == 'PCA':
-            self.sinks_m_data = pd.read_csv(f'../state_compress/LSTM_predict_{self.future_scale}_reduced_states/sink_m_predict_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
-        self.gas_price_data = pd.read_csv(f'../data/profile/gas_price_profile.csv', usecols=['price']) # ?
+            self.compress_sinks_m_data = pd.read_csv(f'{self.path_prefix}/state_compress/LSTM_predict_{self.future_scale}_reduced_states/sink_m_predict_{self.future_scale}_reduced_states.csv', usecols=['reduced_states'])
+        self.gas_price_data = pd.read_csv(f'{self.path_prefix}/data/profile/gas_price_profile.csv', usecols=['price']) # ?
 
-        self.sinks_m = self.sinks_m_data.iloc[0, 0]
-        self.gas_price = self.gas_price_data.iloc[0, 0]
+        self.compress_sinks_m = self.compress_sinks_m_data.iloc[0, 0]
+        self.compress_gas_price = self.gas_price_data.iloc[0, 0]
+
+        self.sinks_m = pd.read_csv(f'{self.path_prefix}/data/profile/sink_m_profile.csv')
+        self.gas_price = pd.read_csv(f'{self.path_prefix}/data/profile/gas_price_profile.csv', usecols=['price']) * 23.01 * 28.317
 
         # Create junctions
-        junctions = ppt.create_junctions(self.net, 33, pn_bar=12, tfluid_k=303.15, name=[f'Bus {i}' for i in range(1, 33 + 1)], type='j')
+        junctions = ppt.create_junctions(self.net, 33, pn_bar=12, tfluid_k=303.15, name=[f'{i}' for i in range(0, 33)], type='j')
 
         # Create pipes, using same length and standard type
         # Main branch
@@ -47,6 +60,7 @@ class thermal_env_v2():
         ppt.create_ext_grid(self.net, junctions[32], p_bar=14, t_k=303.15, name="Grid Connection")
 
         # Create mass storages
+        self.Th_Bat1_E = Th_Bat1_E
         self.mass_storage = ppt.create_mass_storage(self.net, junctions[21], mdot_kg_per_s=0.0, max_m_stored_kg=Th_Bat1_E, init_m_stored_kg=0, name='Thermal Battery')
 
         # Create source
@@ -55,7 +69,7 @@ class thermal_env_v2():
         self.Natural_Gas_Boiler = ppt.create_source(self.net, junctions[24], mdot_kg_per_s=0.0, name="Natural Gas Boiler")
 
         # Create sinks
-        self.sink1  = ppt.create_sink(self.net, junctions[0],  mdot_kg_per_s=0.0,  name='sink 1',  in_service=True)
+        self.sink1  = ppt.create_sink(self.net, junctions[1],  mdot_kg_per_s=0.0,  name='sink 1',  in_service=True)
         self.sink4  = ppt.create_sink(self.net, junctions[3],  mdot_kg_per_s=0.0,  name='sink 4',  in_service=True)
         self.sink7  = ppt.create_sink(self.net, junctions[6],  mdot_kg_per_s=0.0,  name='sink 7',  in_service=True)
         self.sink8  = ppt.create_sink(self.net, junctions[7],  mdot_kg_per_s=0.0,  name='sink 8',  in_service=True)
@@ -78,22 +92,31 @@ class thermal_env_v2():
 
     def modify_values(self, mass_storage_m, mass_storage_mass_percent, CHP_m, Heat_Pump_m, Natural_Gas_Boiler_m, sinks_m):
         self.net.mass_storage.at[0, 'mdot_kg_per_s'] = mass_storage_m
+        #print('mass_storage_m: ', mass_storage_m)
         self.net.mass_storage.at[0, 'init_m_stored_kg'] = mass_storage_mass_percent
+        #print('mass_storage_mass_percent: ', mass_storage_mass_percent)
         self.net.source.at[0, 'mdot_kg_per_s'] = CHP_m
+        #print('CHP_m: ', CHP_m)
         self.net.source.at[1, 'mdot_kg_per_s'] = Heat_Pump_m
+        #print('Heat_Pump_m: ', Heat_Pump_m)
         self.net.source.at[2, 'mdot_kg_per_s'] = Natural_Gas_Boiler_m
+        #print('Natural_Gas_Boiler_m: ', Natural_Gas_Boiler_m)
         for i in range(20):
-            self.net.load.at[i, 'p_mw']  = sinks_m[i]
+            self.net.sink.at[i, 'mdot_kg_per_s']  = sinks_m[i]
+        #print('sinks_m: ', sinks_m)
 
     def run_flow(self):
         ppt.pipeflow(self.net)
 
     def get_next_remaining_mass(self):
         # calculating mass_storage_percent of battery at next step
-        self.mass_storage_m = self.net.mass_storage['mdot_kg_per_s']
-        self.mass_storage_max_mass = self.net.mass_storage['max_m_stored_kg']
-        self.mass_storage_mass_percent = self.net.mass_storage['init_m_stored_kg']
-        self.mass_storage_next_mass_percent = self.mass_storage_mass_percent + (self.mass_storage_m * 60 * 60) / self.mass_storage_max_mass
+        self.mass_storage_m = self.net.mass_storage['mdot_kg_per_s'][0]
+        self.mass_storage_max_mass = self.net.mass_storage['max_m_stored_kg'][0]
+        self.mass_storage_mass_percent = self.net.mass_storage['init_m_stored_kg'][0]
+        #print('mass_storage_mass_percent: ', self.mass_storage_mass_percent)
+        #print('mass_storage_m: ', self.mass_storage_m)
+        #print('mass_storage_max_mass: ', self.mass_storage_max_mass)
+        self.mass_storage_next_mass_percent = self.mass_storage_mass_percent + (self.mass_storage_m * 60 * 60) / self.mass_storage_max_mass * 100
         return self.mass_storage_next_mass_percent
 
     def simple_plot(self):
@@ -103,6 +126,14 @@ if __name__ == "__main__":
     """
     Functional Test
     """
-    thermal_net = thermal_env_v2()
+    thermal_net = thermal_env_v2(future_style='random_noise', compress_style='PCA', future_scale=1, test=1)
+    time_step = 0
+    mass_storage_m = -1.0692246e-03
+    mass_storage_mass_percent = 50
+    CHP_m = 9.8490725e+00 * 1503 /60/60
+    Heat_Pump_m = 5.3270044e+00
+    Natural_Gas_Boiler_m = 3.0491948e-02
+    sinks_m = thermal_net.sinks_m.loc[time_step,:].values[1:]
+    thermal_net.modify_values(mass_storage_m, mass_storage_mass_percent, CHP_m, Heat_Pump_m, Natural_Gas_Boiler_m, sinks_m)
     thermal_net.run_flow()
     thermal_net.simple_plot()

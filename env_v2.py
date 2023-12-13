@@ -13,15 +13,15 @@ from parameters import *
 
 class env_v2():
     def __init__(self):
-        self.electric_net = electric_env_v2(future_style='random_noise', compress_style='PCA', future_scale=1)
-        self.thermal_net = thermal_env_v2(future_style='random_noise', compress_style='PCA', future_scale=1)
+        self.electric_net = electric_env_v2(future_style='random_noise', compress_style='PCA', future_scale=1, test=0)
+        self.thermal_net = thermal_env_v2(future_style='random_noise', compress_style='PCA', future_scale=1, test=0)
         self.state_space = len(self.electric_net.state_space_ids) + len(self.thermal_net.state_space_ids)
-        self.action_space = len(self.electric_net.action_space_ids) + len(self.thermal_net.action_space_ids)
+        self.action_space = len(self.electric_net.action_space_ids) + len(self.thermal_net.action_space_ids) -1
         self.MtoP = 0.00066
         self.PtoM = 1503
         self.Ptoft3 = 3412.14
-        self.battery_soc_percent = 0
-        self.mass_storage_mass_percent = 0
+        self.battery_soc_percent = 50
+        self.mass_storage_mass_percent = 50
         self.electric_buy_price = self.electric_net.electric_buy_price
         self.electric_sell_price = self.electric_net.electric_sell_price
         self.gas_price = self.thermal_net.gas_price
@@ -36,8 +36,14 @@ class env_v2():
     def reset(self):
         self.electric_net = electric_env_v2(future_style='random_noise', compress_style='PCA')
         self.thermal_net = thermal_env_v2(future_style='random_noise', compress_style='PCA')
-        states = [self.electric_buy_price, self.gas_price, self.loads, self.pv_p, self.wind_p, self.battery_soc_percent,
-                  self.sinks_m, self.mass_storage_mass_percent]
+        states = [self.electric_net.compress_electric_buy_price,
+                  self.thermal_net.compress_gas_price,
+                  self.electric_net.compress_loads,
+                  self.electric_net.compress_pv_p,
+                  self.electric_net.compress_wind_p,
+                  self.battery_soc_percent,
+                  self.thermal_net.compress_sinks_m,
+                  self.mass_storage_mass_percent]
         return states
 
     def modify_values(self, battery_p, battery_soc_percent, pv_p, wind_p, CHP_p, loads, mass_storage_m, mass_storage_mass_percent, CHP_thermal_m, Heat_Pump_m, Natural_Gas_Boiler_m, sinks_m):
@@ -48,7 +54,7 @@ class env_v2():
         self.electric_net.run_flow()
         self.thermal_net.run_flow()
         self.battery_next_soc_percent = self.electric_net.get_next_soc_percent()
-        self.mass_storage_next_mass_percent = self.thermal_net.mass_storage_next_mass_percent()
+        self.mass_storage_next_mass_percent = self.thermal_net.get_next_remaining_mass()
         return self.battery_next_soc_percent, self.mass_storage_next_mass_percent
 
     def get_states(self):
@@ -79,15 +85,14 @@ class env_v2():
         return self.states_records_df, self.actions_records_df
 
     def step(self, time_step, actions):
-        # 這裡要改成實際值，buffer存的state和next_state是預測值！
-        self.loads = self.electric_net.loads_data.iloc[time_step, 0]
-        self.pv_p = self.electric_net.pv_data.iloc[time_step, 0]
-        self.wind_p = self.electric_net.wind_data.iloc[time_step, 0]
-        self.electric_buy_price = self.electric_net.electricity_buy_price_data.iloc[time_step, 0]
-        self.electric_sell_price = self.electric_net.electricity_sell_price_data.iloc[time_step, 0]
+        self.loads = self.electric_net.loads.loc[time_step,:].values[1:]/10 # ?
+        self.pv_p = self.electric_net.pv_p.iloc[time_step, 0]
+        self.wind_p = self.electric_net.wind_p.iloc[time_step, 0]
+        self.electric_buy_price = self.electric_net.electric_buy_price.iloc[time_step, 0]
+        self.electric_sell_price = self.electric_net.electric_sell_price.iloc[time_step, 0]
 
-        self.sinks_m = self.thermal_net.sinks_m_data.iloc[time_step, 0]
-        self.gas_price = self.thermal_net.gas_price_data.iloc[time_step, 0]
+        self.sinks_m = self.thermal_net.sinks_m.loc[time_step,:].values[1:]
+        self.gas_price = self.thermal_net.gas_price.iloc[time_step, 0]
 
         done = 0
 
@@ -96,7 +101,7 @@ class env_v2():
         self.CHP_p = actions[1]
 
         # mdot_kg_per_s
-        self.CHP_m = actions[1] * self.PtoM
+        self.CHP_m = actions[1] * self.PtoM /60/60
         self.Heat_Pump_m = actions[2]
         self.Natural_Gas_Boiler_m = actions[3]
         self.mass_storage_m = actions[4]
@@ -105,18 +110,20 @@ class env_v2():
 
         self.battery_next_soc_percent, self.mass_storage_next_mass_percent = self.run_flow()
 
-        next_states = [self.electric_net.electricity_buy_price_data.iloc[time_step+1, 0],
+        next_states = [self.electric_net.compress_electricity_buy_price_data.iloc[time_step+1, 0],
                        self.thermal_net.gas_price_data.iloc[time_step+1, 0],
-                       self.electric_net.loads_data.iloc[time_step+1, 0],
-                       self.electric_net.pv_data.iloc[time_step+1, 0],
-                       self.electric_net.wind_data.iloc[time_step+1, 0],
+                       self.electric_net.compress_loads_data.iloc[time_step+1, 0],
+                       self.electric_net.compress_pv_data.iloc[time_step+1, 0],
+                       self.electric_net.compress_wind_data.iloc[time_step+1, 0],
                        self.battery_next_soc_percent,
-                       self.thermal_net.sinks_m_data.iloc[time_step+1, 0],
+                       self.thermal_net.compress_sinks_m_data.iloc[time_step+1, 0],
                        self.mass_storage_next_mass_percent]
+
+        self.battery_soc_percent, self.mass_storage_mass_percent = self.battery_next_soc_percent, self.mass_storage_next_mass_percent
 
         rewards = self.cal_reward()
 
-        if time_step == len(self.electric_net.loads_data):
+        if time_step == len(self.electric_net.loads):
             done = 1
 
         return next_states, rewards, done

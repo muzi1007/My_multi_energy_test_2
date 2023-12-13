@@ -81,7 +81,7 @@ class ValueNetwork(nn.Module):
 
 class ActorNetwork(nn.Module):
     def __init__(self, alpha, input_dims, fc1_dims=256,
-            fc2_dims=256, n_actions=2, name='actor', chkpt_dir='tmp/sac'):
+            fc2_dims=256, n_actions=6, name='actor', chkpt_dir='tmp/sac'):
         super(ActorNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
